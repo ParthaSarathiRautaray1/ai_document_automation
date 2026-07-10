@@ -45,6 +45,22 @@ function normalize(err) {
     return ApiError.badRequest(`Invalid ${err.path}: ${err.value}`, { code: 'CAST_ERROR' });
   }
 
+  // Body-parser failures (http-errors). Malformed JSON and oversized bodies
+  // arrive here as SyntaxError / http-errors with a client 4xx status; without
+  // this they would fall through to a misleading generic 500.
+  if (err && err.type === 'entity.parse.failed') {
+    return ApiError.badRequest('Malformed JSON in request body', { code: 'INVALID_JSON' });
+  }
+  if (err && err.type === 'entity.too.large') {
+    return new ApiError(HTTP_STATUS.PAYLOAD_TOO_LARGE, 'Request body is too large', {
+      code: 'PAYLOAD_TOO_LARGE',
+    });
+  }
+  // Any other exposed http-errors carrying a 4xx status (e.g. bad content-type).
+  if (err && typeof err.status === 'number' && err.status >= 400 && err.status < 500 && err.expose) {
+    return new ApiError(err.status, err.message, { code: 'BAD_REQUEST' });
+  }
+
   // Duplicate key (unique index violation)
   if (err && err.code === 11000) {
     const field = Object.keys(err.keyValue || {})[0] || 'field';
