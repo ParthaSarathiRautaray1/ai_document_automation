@@ -48,3 +48,21 @@ export const loginSchema = z
     password: z.string({ required_error: 'Password is required' }).min(1, 'Password is required'),
   })
   .strict();
+
+export const forgotPasswordSchema = z
+  .object({
+    email,
+  })
+  .strict();
+
+export const resetPasswordSchema = z
+  .object({
+    // Plaintext reset token delivered by email (hex string).
+    token: z
+      .string({ required_error: 'Reset token is required' })
+      .trim()
+      .min(1, 'Reset token is required'),
+    // New password must satisfy the full registration policy.
+    password,
+  })
+  .strict();

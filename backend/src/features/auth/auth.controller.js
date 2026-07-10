@@ -93,3 +93,25 @@ export const logout = asyncHandler(async (req, res) => {
 export const me = asyncHandler(async (req, res) => {
   ApiResponse.send(res, HTTP_STATUS.OK, { user: req.user.toJSON() }, 'Current user');
 });
+
+export const forgotPassword = asyncHandler(async (req, res) => {
+  await authService.forgotPassword(req.body.email);
+  // Always generic — never reveals whether the email is registered.
+  ApiResponse.send(
+    res,
+    HTTP_STATUS.OK,
+    null,
+    'If an account exists for that email, a password reset link has been sent'
+  );
+});
+
+export const resetPassword = asyncHandler(async (req, res) => {
+  await authService.resetPassword(req.body.token, req.body.password);
+  // Sessions are revoked as part of the reset; require a fresh login.
+  ApiResponse.send(
+    res,
+    HTTP_STATUS.OK,
+    null,
+    'Your password has been reset. Please log in with your new password.'
+  );
+});
