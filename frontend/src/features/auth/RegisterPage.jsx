@@ -24,13 +24,18 @@ export default function RegisterPage() {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(registerSchema),
-    defaultValues: { firstName: '', lastName: '', email: '', password: '' },
+    defaultValues: { firstName: '', lastName: '', email: '', organizationName: '', password: '' },
   });
 
   const mutation = useMutation({
     mutationFn: registerRequest,
     onSuccess: (data) => {
-      setSession({ user: data.user, accessToken: data.accessToken });
+      setSession({
+        user: data.user,
+        organization: data.organization,
+        accessToken: data.accessToken,
+        permissions: data.permissions,
+      });
       navigate('/', { replace: true });
     },
   });
@@ -80,6 +85,21 @@ export default function RegisterPage() {
             placeholder="you@example.com"
             invalid={!!errors.email}
             {...register('email')}
+          />
+        </FormField>
+
+        <FormField
+          id="organizationName"
+          label="Organization name"
+          error={errors.organizationName?.message}
+          hint="You'll be the admin of this workspace. You can invite teammates later."
+        >
+          <Input
+            id="organizationName"
+            autoComplete="organization"
+            placeholder="Acme Corp"
+            invalid={!!errors.organizationName}
+            {...register('organizationName')}
           />
         </FormField>
 

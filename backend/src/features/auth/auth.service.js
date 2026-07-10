@@ -19,9 +19,10 @@ import {
   compareTokenHash,
 } from '../../utils/token.js';
 import { sendPasswordResetEmail } from '../../services/email.service.js';
+import * as organizationService from '../organizations/organization.service.js';
 import env from '../../config/env.js';
 import logger from '../../config/logger.js';
-import { USER_STATUS } from '../../config/constants.js';
+import { ROLES, USER_STATUS } from '../../config/constants.js';
 
 /**
  * Sign a fresh access+refresh pair, persist the refresh hash, and return both.
@@ -37,9 +38,22 @@ async function issueTokens(user) {
 }
 
 /**
- * Register a new user account.
- * @param {{ firstName:string, lastName:string, email:string, password:string }} input
- * @returns {Promise<{ user: object, accessToken: string, refreshToken: string }>}
+ * Load a user's organization as plain JSON (or null if they have none / it was
+ * removed). Surfaced on the identity responses so the SPA knows the tenant.
+ * @param {import('mongoose').Document} user
+ * @returns {Promise<object | null>}
+ */
+export function organizationForUser(user) {
+  return organizationService.getPublicById(user.organization);
+}
+
+/**
+ * Register a new user account. Self-serve tenancy (Module 3): the registrant
+ * creates and OWNS a brand-new organization and becomes its admin. Additional
+ * users join an existing org by invitation instead of registering.
+ *
+ * @param {{ firstName:string, lastName:string, email:string, password:string, organizationName?:string }} input
+ * @returns {Promise<{ user: object, organization: object, accessToken: string, refreshToken: string }>}
  */
 export async function register(input) {
   const existing = await User.findOne({ email: input.email }).lean();
@@ -57,9 +71,22 @@ export async function register(input) {
     password: input.password, // hashed by the model's pre-save hook
   });
 
+  // Create the tenant this user owns. There are no multi-document transactions
+  // here (single-node Mongo), so on failure we roll back the orphaned user.
+  const orgName = input.organizationName?.trim() || `${input.firstName}'s Organization`;
+  let organization;
+  try {
+    organization = await organizationService.createForOwner({ name: orgName, ownerId: user._id });
+  } catch (err) {
+    await User.deleteOne({ _id: user._id });
+    throw err;
+  }
+
+  user.organization = organization._id;
+  user.role = ROLES.ADMIN; // the org creator administers their own tenant
   user.lastLoginAt = new Date();
   const tokens = await issueTokens(user);
-  return { user: user.toJSON(), ...tokens };
+  return { user: user.toJSON(), organization: organization.toJSON(), ...tokens };
 }
 
 /**
@@ -76,10 +103,16 @@ export async function login(input) {
   if (user.status === USER_STATUS.SUSPENDED) {
     throw ApiError.forbidden('This account is suspended', { code: 'ACCOUNT_SUSPENDED' });
   }
+  if (user.status === USER_STATUS.INVITED) {
+    throw ApiError.forbidden('Please accept your invitation to activate your account', {
+      code: 'ACCOUNT_INVITED',
+    });
+  }
 
   user.lastLoginAt = new Date();
   const tokens = await issueTokens(user);
-  return { user: user.toJSON(), ...tokens };
+  const organization = await organizationForUser(user);
+  return { user: user.toJSON(), organization, ...tokens };
 }
 
 /**
@@ -109,7 +142,8 @@ export async function refresh(refreshToken) {
   }
 
   const tokens = await issueTokens(user);
-  return { user: user.toJSON(), ...tokens };
+  const organization = await organizationForUser(user);
+  return { user: user.toJSON(), organization, ...tokens };
 }
 
 /**
@@ -191,4 +225,42 @@ export async function resetPassword(rawToken, newPassword) {
   await user.save();
 
   return { user: user.toJSON() };
+}
+
+/**
+ * Accept a member invitation: verify the emailed token, set the invitee's
+ * password, flip their status to `active`, and log them in (issue a token pair).
+ * The token reuses the reset-token fields; only `invited` accounts are eligible.
+ *
+ * @param {string} rawToken - Plaintext token from the invite link.
+ * @param {string} newPassword
+ * @param {{ firstName?: string, lastName?: string }} [profile] - optional name overrides
+ * @returns {Promise<{ user: object, organization: object|null, accessToken: string, refreshToken: string }>}
+ */
+export async function acceptInvite(rawToken, newPassword, profile = {}) {
+  const hashed = crypto.createHash('sha256').update(rawToken).digest('hex');
+
+  const user = await User.findOne({
+    passwordResetToken: hashed,
+    passwordResetExpires: { $gt: new Date() },
+    status: USER_STATUS.INVITED,
+  }).select('+passwordResetToken +passwordResetExpires');
+
+  if (!user) {
+    throw ApiError.badRequest('This invitation is invalid or has expired', {
+      code: 'INVITE_INVALID',
+    });
+  }
+
+  if (profile.firstName) user.firstName = profile.firstName;
+  if (profile.lastName) user.lastName = profile.lastName;
+  user.password = newPassword; // triggers hash + passwordChangedAt
+  user.status = USER_STATUS.ACTIVE;
+  user.passwordResetToken = null;
+  user.passwordResetExpires = null;
+  user.lastLoginAt = new Date();
+
+  const tokens = await issueTokens(user); // saves the user
+  const organization = await organizationForUser(user);
+  return { user: user.toJSON(), organization, ...tokens };
 }

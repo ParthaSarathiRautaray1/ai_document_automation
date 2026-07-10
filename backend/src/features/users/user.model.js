@@ -20,6 +20,7 @@ import {
   USER_STATUS,
   USER_STATUS_VALUES,
   BCRYPT_SALT_ROUNDS,
+  INVITE_TOKEN_EXPIRES_MIN,
 } from '../../config/constants.js';
 import env from '../../config/env.js';
 
@@ -136,6 +137,18 @@ userSchema.methods.createPasswordResetToken = function createPasswordResetToken(
   const rawToken = crypto.randomBytes(32).toString('hex');
   this.passwordResetToken = crypto.createHash('sha256').update(rawToken).digest('hex');
   this.passwordResetExpires = new Date(Date.now() + env.RESET_TOKEN_EXPIRES_MIN * 60 * 1000);
+  return rawToken;
+};
+
+/**
+ * Generate a member-invitation token. Reuses the reset-token fields (an
+ * invitation is a "set your password" flow) but with a longer expiry. Stores the
+ * SHA-256 hash and returns the PLAINTEXT token (to be emailed as an invite link).
+ */
+userSchema.methods.createInviteToken = function createInviteToken() {
+  const rawToken = crypto.randomBytes(32).toString('hex');
+  this.passwordResetToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+  this.passwordResetExpires = new Date(Date.now() + INVITE_TOKEN_EXPIRES_MIN * 60 * 1000);
   return rawToken;
 };
 

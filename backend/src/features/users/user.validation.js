@@ -3,7 +3,7 @@
  * Query values are coerced/normalized here so the service receives clean input.
  */
 import { z } from 'zod';
-import { ROLE_VALUES, USER_STATUS_VALUES } from '../../config/constants.js';
+import { ROLE_VALUES, USER_STATUS, USER_STATUS_VALUES } from '../../config/constants.js';
 
 /** 24-char hex Mongo ObjectId. */
 const objectId = z
@@ -28,5 +28,19 @@ export const listUsersQuerySchema = z
     q: z.string().trim().min(1).max(120).optional(),
     role: z.enum(ROLE_VALUES).optional(),
     status: z.enum(USER_STATUS_VALUES).optional(),
+  })
+  .strict();
+
+export const updateRoleSchema = z
+  .object({
+    role: z.enum(ROLE_VALUES),
+  })
+  .strict();
+
+// Only active/suspended are settable here; `invited` is set by the invite flow
+// (Module 3), not by an admin toggling status.
+export const updateStatusSchema = z
+  .object({
+    status: z.enum([USER_STATUS.ACTIVE, USER_STATUS.SUSPENDED]),
   })
   .strict();

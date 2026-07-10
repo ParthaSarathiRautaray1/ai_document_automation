@@ -20,13 +20,48 @@ describe('POST /auth/register', () => {
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
     expect(res.body.data.user.email).toBe('ada@example.com');
-    expect(res.body.data.user.role).toBe(ROLES.MEMBER);
+    // Self-serve tenancy (Module 3): the registrant owns + administers a new org.
+    expect(res.body.data.user.role).toBe(ROLES.ADMIN);
     expect(res.body.data.user.password).toBeUndefined();
     expect(typeof res.body.data.accessToken).toBe('string');
 
     const decoded = jwt.decode(res.body.data.accessToken);
     expect(decoded.sub).toBe(res.body.data.user.id);
-    expect(decoded.role).toBe(ROLES.MEMBER);
+    expect(decoded.role).toBe(ROLES.ADMIN);
+  });
+
+  it('creates an organization owned by the registrant', async () => {
+    const res = await request(app).post(`${PREFIX}/auth/register`).send(validUser);
+    expect(res.status).toBe(201);
+
+    const { user, organization } = res.body.data;
+    expect(organization).toBeTruthy();
+    // Defaults the org name from the first name when none is supplied.
+    expect(organization.name).toBe("Ada's Organization");
+    expect(organization.slug).toBe('adas-organization');
+    expect(organization.owner).toBe(user.id);
+    expect(user.organization).toBe(organization.id);
+  });
+
+  it('uses an explicit organization name and slugifies it', async () => {
+    const res = await request(app)
+      .post(`${PREFIX}/auth/register`)
+      .send({ ...validUser, organizationName: 'Analytical Engines Ltd' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.organization.name).toBe('Analytical Engines Ltd');
+    expect(res.body.data.organization.slug).toBe('analytical-engines-ltd');
+  });
+
+  it('gives colliding organization names distinct slugs', async () => {
+    const first = await request(app)
+      .post(`${PREFIX}/auth/register`)
+      .send({ ...validUser, email: 'a@example.com', organizationName: 'Acme' });
+    const second = await request(app)
+      .post(`${PREFIX}/auth/register`)
+      .send({ ...validUser, email: 'b@example.com', organizationName: 'Acme' });
+
+    expect(first.body.data.organization.slug).toBe('acme');
+    expect(second.body.data.organization.slug).toBe('acme-2');
   });
 
   it('normalizes email to lowercase and sets lastLoginAt', async () => {
@@ -74,6 +109,9 @@ describe('POST /auth/login', () => {
     expect(res.status).toBe(200);
     expect(res.body.data.accessToken).toBeDefined();
     expect(res.body.data.user.email).toBe(validUser.email);
+    // Login surfaces the user's organization (created at registration).
+    expect(res.body.data.organization).toBeTruthy();
+    expect(res.body.data.organization.id).toBe(res.body.data.user.organization);
   });
 
   it('rejects a wrong password with a generic 401', async () => {

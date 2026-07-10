@@ -29,18 +29,26 @@ function run(middleware, req) {
 }
 
 describe('permission policy', () => {
-  it('grants members no admin permissions', () => {
-    expect(permissionsForRole(ROLES.MEMBER)).toEqual([]);
+  it('grants members only read of their own organization', () => {
+    // No user-administration permissions; can view their own org (Module 3).
+    expect(permissionsForRole(ROLES.MEMBER)).toEqual([PERMISSIONS.ORG_READ]);
+    expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.USER_READ)).toBe(false);
   });
 
-  it('grants managers read-only', () => {
-    expect(permissionsForRole(ROLES.MANAGER)).toEqual([PERMISSIONS.USER_READ]);
+  it('grants managers user read + org read', () => {
+    expect(permissionsForRole(ROLES.MANAGER)).toEqual([
+      PERMISSIONS.USER_READ,
+      PERMISSIONS.ORG_READ,
+    ]);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.USER_UPDATE_ROLE)).toBe(false);
+    expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.ORG_UPDATE)).toBe(false);
   });
 
-  it('grants admins read + role/status management, but not delete', () => {
+  it('grants admins user + org management, but not user delete', () => {
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.USER_UPDATE_ROLE)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.USER_UPDATE_STATUS)).toBe(true);
+    expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.ORG_UPDATE)).toBe(true);
+    expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.ORG_MANAGE_MEMBERS)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.USER_DELETE)).toBe(false);
   });
 

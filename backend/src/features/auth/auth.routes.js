@@ -18,6 +18,7 @@ import {
   loginSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  acceptInviteSchema,
 } from './auth.validation.js';
 
 const router = Router();
@@ -38,6 +39,12 @@ router.post(
   authLimiter,
   validate({ body: resetPasswordSchema }),
   authController.resetPassword
+);
+router.post(
+  '/accept-invite',
+  authLimiter,
+  validate({ body: acceptInviteSchema }),
+  authController.acceptInvite
 );
 
 export default router;

@@ -31,12 +31,26 @@ export const USER_STATUS = Object.freeze({
 
 export const USER_STATUS_VALUES = Object.freeze(Object.values(USER_STATUS));
 
+/**
+ * Organization lifecycle status (Module 3). A suspended organization is a
+ * tenant-level block; individual user suspension remains separate (USER_STATUS).
+ */
+export const ORG_STATUS = Object.freeze({
+  ACTIVE: 'active',
+  SUSPENDED: 'suspended',
+});
+
+export const ORG_STATUS_VALUES = Object.freeze(Object.values(ORG_STATUS));
+
 export const TOKEN_TYPES = Object.freeze({
   ACCESS: 'access',
   REFRESH: 'refresh',
 });
 
 export const BCRYPT_SALT_ROUNDS = 12;
+
+/** How long a member invitation link stays valid (minutes). Default: 7 days. */
+export const INVITE_TOKEN_EXPIRES_MIN = 7 * 24 * 60;
 
 export const HTTP_STATUS = Object.freeze({
   OK: 200,

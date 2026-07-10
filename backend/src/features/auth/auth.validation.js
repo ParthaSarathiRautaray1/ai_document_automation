@@ -38,6 +38,14 @@ export const registerSchema = z
     lastName: name('Last name'),
     email,
     password,
+    // Self-serve org creation (Module 3): the registrant creates and owns a new
+    // organization. Optional — defaults to "<First name>'s Organization".
+    organizationName: z
+      .string()
+      .trim()
+      .min(1, 'Organization name is required')
+      .max(120, 'Organization name must be at most 120 characters')
+      .optional(),
   })
   .strict();
 
@@ -64,5 +72,20 @@ export const resetPasswordSchema = z
       .min(1, 'Reset token is required'),
     // New password must satisfy the full registration policy.
     password,
+  })
+  .strict();
+
+export const acceptInviteSchema = z
+  .object({
+    // Plaintext invite token delivered by email (hex string).
+    token: z
+      .string({ required_error: 'Invitation token is required' })
+      .trim()
+      .min(1, 'Invitation token is required'),
+    // New password must satisfy the full registration policy.
+    password,
+    // Optional: let the invitee correct the name the inviter entered.
+    firstName: name('First name').optional(),
+    lastName: name('Last name').optional(),
   })
   .strict();

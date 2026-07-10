@@ -11,6 +11,7 @@ const sendPasswordResetEmail = jest.fn().mockResolvedValue({ delivered: true });
 
 jest.unstable_mockModule('../src/services/email.service.js', () => ({
   sendPasswordResetEmail,
+  sendInvitationEmail: jest.fn().mockResolvedValue({ delivered: true }),
   sendTransactionalEmail: jest.fn().mockResolvedValue({ delivered: true }),
 }));
 

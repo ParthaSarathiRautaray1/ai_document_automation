@@ -2,14 +2,19 @@ import { useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import { ProtectedRoute, PublicOnlyRoute } from '@/components/ProtectedRoute';
+import { RequirePermission } from '@/components/RequirePermission';
 import { Spinner } from '@/components/ui/spinner';
+import { PERMISSIONS } from '@/lib/permissions';
 import { useAuthStore } from '@/store/authStore';
 
 import LoginPage from '@/features/auth/LoginPage';
 import RegisterPage from '@/features/auth/RegisterPage';
 import ForgotPasswordPage from '@/features/auth/ForgotPasswordPage';
 import ResetPasswordPage from '@/features/auth/ResetPasswordPage';
+import AcceptInvitePage from '@/features/auth/AcceptInvitePage';
 import DashboardPage from '@/pages/DashboardPage';
+import UsersPage from '@/features/users/UsersPage';
+import OrganizationSettingsPage from '@/features/organizations/OrganizationSettingsPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 
 function FullScreenLoader() {
@@ -43,9 +48,16 @@ export default function App() {
 
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/accept-invite" element={<AcceptInvitePage />} />
 
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<DashboardPage />} />
+        <Route element={<RequirePermission permission={PERMISSIONS.USER_READ} />}>
+          <Route path="/users" element={<UsersPage />} />
+        </Route>
+        <Route element={<RequirePermission permission={PERMISSIONS.ORG_READ} />}>
+          <Route path="/organization" element={<OrganizationSettingsPage />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

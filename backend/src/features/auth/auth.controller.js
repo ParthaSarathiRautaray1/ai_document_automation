@@ -13,8 +13,15 @@ import ApiResponse from '../../utils/ApiResponse.js';
 import { HTTP_STATUS } from '../../config/constants.js';
 import env from '../../config/env.js';
 import { verifyRefreshToken } from '../../utils/token.js';
+import { permissionsForRole } from '../../config/permissions.js';
 
 const REFRESH_COOKIE = 'refreshToken';
+
+/** Permissions granted to a user's role, surfaced so the client can render
+ *  permission-aware UI without re-implementing the policy. */
+function permissionsFor(user) {
+  return [...permissionsForRole(user?.role)];
+}
 
 /** Parse durations like "7d", "15m", "3600s", "24h" into milliseconds. */
 function durationToMs(value) {
@@ -51,27 +58,37 @@ function readRefreshToken(req) {
 }
 
 export const register = asyncHandler(async (req, res) => {
-  const { user, accessToken, refreshToken } = await authService.register(req.body);
+  const { user, organization, accessToken, refreshToken } = await authService.register(req.body);
   setRefreshCookie(res, refreshToken);
   ApiResponse.send(
     res,
     HTTP_STATUS.CREATED,
-    { user, accessToken, refreshToken },
+    { user, organization, accessToken, refreshToken, permissions: permissionsFor(user) },
     'Account created successfully'
   );
 });
 
 export const login = asyncHandler(async (req, res) => {
-  const { user, accessToken, refreshToken } = await authService.login(req.body);
+  const { user, organization, accessToken, refreshToken } = await authService.login(req.body);
   setRefreshCookie(res, refreshToken);
-  ApiResponse.send(res, HTTP_STATUS.OK, { user, accessToken, refreshToken }, 'Logged in successfully');
+  ApiResponse.send(
+    res,
+    HTTP_STATUS.OK,
+    { user, organization, accessToken, refreshToken, permissions: permissionsFor(user) },
+    'Logged in successfully'
+  );
 });
 
 export const refresh = asyncHandler(async (req, res) => {
   const presented = readRefreshToken(req);
-  const { user, accessToken, refreshToken } = await authService.refresh(presented);
+  const { user, organization, accessToken, refreshToken } = await authService.refresh(presented);
   setRefreshCookie(res, refreshToken);
-  ApiResponse.send(res, HTTP_STATUS.OK, { user, accessToken, refreshToken }, 'Token refreshed');
+  ApiResponse.send(
+    res,
+    HTTP_STATUS.OK,
+    { user, organization, accessToken, refreshToken, permissions: permissionsFor(user) },
+    'Token refreshed'
+  );
 });
 
 export const logout = asyncHandler(async (req, res) => {
@@ -91,7 +108,13 @@ export const logout = asyncHandler(async (req, res) => {
 });
 
 export const me = asyncHandler(async (req, res) => {
-  ApiResponse.send(res, HTTP_STATUS.OK, { user: req.user.toJSON() }, 'Current user');
+  const organization = await authService.organizationForUser(req.user);
+  ApiResponse.send(
+    res,
+    HTTP_STATUS.OK,
+    { user: req.user.toJSON(), organization, permissions: permissionsFor(req.user) },
+    'Current user'
+  );
 });
 
 export const forgotPassword = asyncHandler(async (req, res) => {
@@ -113,5 +136,20 @@ export const resetPassword = asyncHandler(async (req, res) => {
     HTTP_STATUS.OK,
     null,
     'Your password has been reset. Please log in with your new password.'
+  );
+});
+
+export const acceptInvite = asyncHandler(async (req, res) => {
+  const { user, organization, accessToken, refreshToken } = await authService.acceptInvite(
+    req.body.token,
+    req.body.password,
+    { firstName: req.body.firstName, lastName: req.body.lastName }
+  );
+  setRefreshCookie(res, refreshToken);
+  ApiResponse.send(
+    res,
+    HTTP_STATUS.OK,
+    { user, organization, accessToken, refreshToken, permissions: permissionsFor(user) },
+    'Invitation accepted'
   );
 });

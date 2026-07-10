@@ -11,7 +11,7 @@
  */
 import env from '../config/env.js';
 import logger from '../config/logger.js';
-import { passwordResetEmail } from './email.templates.js';
+import { passwordResetEmail, invitationEmail } from './email.templates.js';
 
 const BREVO_ENDPOINT = 'https://api.brevo.com/v3/smtp/email';
 const SEND_TIMEOUT_MS = 10_000;
@@ -73,6 +73,26 @@ export async function sendPasswordResetEmail(user, resetUrl) {
     logger.info(`[email] password reset link for ${user.email}: ${resetUrl}`);
   }
   const { subject, html, text } = passwordResetEmail(user, resetUrl);
+  return sendTransactionalEmail({
+    to: user.email,
+    toName: user.fullName || user.firstName,
+    subject,
+    html,
+    text,
+  });
+}
+
+/**
+ * Send a member-invitation email.
+ * @param {{ email:string, firstName?:string, fullName?:string }} user - the invitee
+ * @param {string} inviteUrl - Full client URL containing the plaintext invite token.
+ * @param {{ inviterName?: string, orgName?: string }} context
+ */
+export async function sendInvitationEmail(user, inviteUrl, context = {}) {
+  if (!env.isProduction) {
+    logger.info(`[email] invitation link for ${user.email}: ${inviteUrl}`);
+  }
+  const { subject, html, text } = invitationEmail(user, inviteUrl, context);
   return sendTransactionalEmail({
     to: user.email,
     toName: user.fullName || user.firstName,

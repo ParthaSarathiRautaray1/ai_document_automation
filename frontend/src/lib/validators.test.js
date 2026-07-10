@@ -23,7 +23,12 @@ describe('loginSchema', () => {
 });
 
 describe('registerSchema password policy', () => {
-  const base = { firstName: 'Ada', lastName: 'Lovelace', email: 'ada@example.com' };
+  const base = {
+    firstName: 'Ada',
+    lastName: 'Lovelace',
+    email: 'ada@example.com',
+    organizationName: 'Analytical Engines',
+  };
 
   it('accepts a strong password', () => {
     expect(registerSchema.safeParse({ ...base, password: 'Sup3rSecret' }).success).toBe(true);
@@ -40,6 +45,12 @@ describe('registerSchema password policy', () => {
     expect(registerSchema.safeParse({ ...base, firstName: '', password: 'Sup3rSecret' }).success).toBe(
       false
     );
+  });
+
+  it('requires an organization name', () => {
+    expect(
+      registerSchema.safeParse({ ...base, organizationName: '', password: 'Sup3rSecret' }).success
+    ).toBe(false);
   });
 });
 

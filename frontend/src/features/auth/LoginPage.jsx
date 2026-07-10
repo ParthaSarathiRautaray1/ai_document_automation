@@ -30,7 +30,12 @@ export default function LoginPage() {
   const mutation = useMutation({
     mutationFn: loginRequest,
     onSuccess: (data) => {
-      setSession({ user: data.user, accessToken: data.accessToken });
+      setSession({
+        user: data.user,
+        organization: data.organization,
+        accessToken: data.accessToken,
+        permissions: data.permissions,
+      });
       navigate(redirectTo, { replace: true });
     },
   });

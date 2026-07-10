@@ -34,6 +34,13 @@ export const registerSchema = z.object({
   firstName: name('First name'),
   lastName: name('Last name'),
   email,
+  // Self-serve org creation (Module 3). Required in the UI so the tenant gets a
+  // meaningful name; the API also accepts it optionally with a default.
+  organizationName: z
+    .string()
+    .trim()
+    .min(1, 'Organization name is required')
+    .max(120, 'Organization name must be 120 characters or fewer'),
   password,
 });
 
@@ -48,3 +55,25 @@ export const resetPasswordSchema = z
     path: ['confirmPassword'],
     message: 'Passwords do not match',
   });
+
+// Accept an invitation: same password rules as reset, with confirmation.
+export const acceptInviteSchema = resetPasswordSchema;
+
+// Invite a new member (Module 3). Role is chosen from an assignable list in the UI.
+export const inviteMemberSchema = z.object({
+  firstName: name('First name'),
+  lastName: name('Last name'),
+  email,
+  role: z.string().optional(),
+});
+
+// Edit organization profile/settings (Module 3).
+export const organizationSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Organization name is required')
+    .max(120, 'Organization name must be 120 characters or fewer'),
+  billingEmail: z.union([z.literal(''), email]).optional(),
+  timezone: z.string().trim().max(64).optional(),
+});

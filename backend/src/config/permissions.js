@@ -21,11 +21,24 @@ export const PERMISSIONS = Object.freeze({
   USER_UPDATE_ROLE: 'user:update_role',
   USER_UPDATE_STATUS: 'user:update_status',
   USER_DELETE: 'user:delete',
+
+  // Organization management (Module 3)
+  ORG_READ: 'org:read', // view own organization profile
+  ORG_UPDATE: 'org:update', // edit organization profile/settings
+  ORG_MANAGE_MEMBERS: 'org:manage_members', // invite / remove / re-role members
 });
 
 export const PERMISSION_VALUES = Object.freeze(Object.values(PERMISSIONS));
 
-const { USER_READ, USER_UPDATE_ROLE, USER_UPDATE_STATUS, USER_DELETE } = PERMISSIONS;
+const {
+  USER_READ,
+  USER_UPDATE_ROLE,
+  USER_UPDATE_STATUS,
+  USER_DELETE,
+  ORG_READ,
+  ORG_UPDATE,
+  ORG_MANAGE_MEMBERS,
+} = PERMISSIONS;
 
 /**
  * Role → granted permissions. Higher roles are supersets today, but each is
@@ -33,14 +46,24 @@ const { USER_READ, USER_UPDATE_ROLE, USER_UPDATE_STATUS, USER_DELETE } = PERMISS
  * later without a rewrite.
  */
 export const ROLE_PERMISSIONS = Object.freeze({
-  [ROLES.MEMBER]: Object.freeze([]),
-  [ROLES.MANAGER]: Object.freeze([USER_READ]),
-  [ROLES.ADMIN]: Object.freeze([USER_READ, USER_UPDATE_ROLE, USER_UPDATE_STATUS]),
+  [ROLES.MEMBER]: Object.freeze([ORG_READ]),
+  [ROLES.MANAGER]: Object.freeze([USER_READ, ORG_READ]),
+  [ROLES.ADMIN]: Object.freeze([
+    USER_READ,
+    USER_UPDATE_ROLE,
+    USER_UPDATE_STATUS,
+    ORG_READ,
+    ORG_UPDATE,
+    ORG_MANAGE_MEMBERS,
+  ]),
   [ROLES.SUPER_ADMIN]: Object.freeze([
     USER_READ,
     USER_UPDATE_ROLE,
     USER_UPDATE_STATUS,
     USER_DELETE,
+    ORG_READ,
+    ORG_UPDATE,
+    ORG_MANAGE_MEMBERS,
   ]),
 });
 

@@ -1,7 +1,5 @@
-import { FileText, LogOut } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { AppHeader } from '@/components/AppHeader';
 import { useAuthStore } from '@/store/authStore';
 
 /**
@@ -11,25 +9,10 @@ import { useAuthStore } from '@/store/authStore';
  */
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="flex items-center justify-between border-b border-border px-5 py-3">
-        <div className="flex items-center gap-2 font-semibold">
-          <span className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">
-            <FileText className="h-4 w-4" aria-hidden="true" />
-          </span>
-          <span>DocFlow&nbsp;AI</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <ThemeToggle />
-          <Button variant="ghost" size="sm" onClick={logout}>
-            <LogOut className="h-4 w-4" />
-            Sign out
-          </Button>
-        </div>
-      </header>
+      <AppHeader />
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10">
         <Card>

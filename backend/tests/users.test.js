@@ -3,6 +3,7 @@
  * Exercises auth, permission gating, pagination, filtering, search, and the
  * 404/422 error paths against the real app.
  */
+import mongoose from 'mongoose';
 import request from 'supertest';
 import app from '../src/app.js';
 import User from '../src/features/users/user.model.js';
@@ -11,9 +12,13 @@ import { ROLES, USER_STATUS } from '../src/config/constants.js';
 
 const PREFIX = process.env.API_PREFIX || '/api/v1';
 
+// User administration is org-scoped (Module 3). Unless a test overrides it, all
+// users share this tenant so the actor can see them.
+const ORG = new mongoose.Types.ObjectId();
+
 /** Create a user directly and return { user, token }. */
-async function makeUser({ email, role = ROLES.MEMBER, status = USER_STATUS.ACTIVE, firstName = 'Test', lastName = 'User' }) {
-  const user = await User.create({ firstName, lastName, email, password: 'Sup3rSecret', role, status });
+async function makeUser({ email, role = ROLES.MEMBER, status = USER_STATUS.ACTIVE, firstName = 'Test', lastName = 'User', organization = ORG }) {
+  const user = await User.create({ firstName, lastName, email, password: 'Sup3rSecret', role, status, organization });
   return { user, token: signAccessToken(user) };
 }
 
@@ -94,6 +99,30 @@ describe('GET /users (list)', () => {
     expect(byName.body.data.users).toHaveLength(1);
   });
 
+  it('excludes users from other organizations (tenant isolation)', async () => {
+    const otherOrg = new mongoose.Types.ObjectId();
+    const { token } = await makeUser({ email: 'admin@example.com', role: ROLES.ADMIN });
+    await makeUser({ email: 'sameorg@example.com' });
+    await makeUser({ email: 'otherorg@example.com', organization: otherOrg });
+
+    const res = await auth(request(app).get(`${PREFIX}/users`), token);
+    expect(res.status).toBe(200);
+    // admin + sameorg only; the other-org user is invisible.
+    expect(res.body.meta.total).toBe(2);
+    expect(res.body.data.users.some((u) => u.email === 'otherorg@example.com')).toBe(false);
+  });
+
+  it('lets a super_admin list across organizations', async () => {
+    const otherOrg = new mongoose.Types.ObjectId();
+    const { token } = await makeUser({ email: 'super@example.com', role: ROLES.SUPER_ADMIN });
+    await makeUser({ email: 'a@example.com' });
+    await makeUser({ email: 'b@example.com', organization: otherOrg });
+
+    const res = await auth(request(app).get(`${PREFIX}/users`), token);
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(3); // super_admin + both, regardless of org
+  });
+
   it('rejects an unknown query field (strict schema, 422)', async () => {
     const { token } = await makeUser({ email: 'admin@example.com', role: ROLES.ADMIN });
     const res = await auth(request(app).get(`${PREFIX}/users?bogus=1`), token);
@@ -121,6 +150,15 @@ describe('GET /users/:id', () => {
   it('returns 404 for a valid but non-existent id', async () => {
     const { token } = await makeUser({ email: 'admin@example.com', role: ROLES.ADMIN });
     const res = await auth(request(app).get(`${PREFIX}/users/0123456789abcdef01234567`), token);
+    expect(res.status).toBe(404);
+    expect(res.body.code).toBe('USER_NOT_FOUND');
+  });
+
+  it('returns 404 for a user in another organization (isolation)', async () => {
+    const otherOrg = new mongoose.Types.ObjectId();
+    const { token } = await makeUser({ email: 'admin@example.com', role: ROLES.ADMIN });
+    const { user: foreign } = await makeUser({ email: 'foreign@example.com', organization: otherOrg });
+    const res = await auth(request(app).get(`${PREFIX}/users/${foreign.id}`), token);
     expect(res.status).toBe(404);
     expect(res.body.code).toBe('USER_NOT_FOUND');
   });
