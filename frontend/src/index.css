@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Design tokens (shadcn-style HSL variables). Light is the default; `.dark` on
+ * <html> flips the palette. Neutral is a cool slate biased slightly toward the
+ * indigo primary so it reads as chosen rather than a flat grey.
+ */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 22% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 22% 12%;
+
+    --primary: 231 60% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 222 16% 96%;
+    --secondary-foreground: 222 22% 20%;
+
+    --muted: 222 16% 96%;
+    --muted-foreground: 222 10% 44%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 16% 90%;
+    --input: 222 16% 88%;
+    --ring: 231 60% 55%;
+
+    --radius: 0.6rem;
+  }
+
+  .dark {
+    --background: 224 28% 8%;
+    --foreground: 220 20% 92%;
+
+    --card: 224 24% 11%;
+    --card-foreground: 220 20% 92%;
+
+    --primary: 231 70% 66%;
+    --primary-foreground: 224 28% 8%;
+
+    --secondary: 223 18% 18%;
+    --secondary-foreground: 220 20% 92%;
+
+    --muted: 223 18% 16%;
+    --muted-foreground: 220 12% 62%;
+
+    --destructive: 0 63% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 223 16% 20%;
+    --input: 223 16% 24%;
+    --ring: 231 70% 66%;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+    -webkit-font-smoothing: antialiased;
+  }
+}
