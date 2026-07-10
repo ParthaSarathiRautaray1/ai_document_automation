@@ -8,13 +8,19 @@
  *                              for "these specific roles and no others".
  *  - `requireMinRole(role)`  — hierarchical: allow the given role or any higher
  *                              rank (see ROLE_RANK). Use for "at least X".
+ *  - `authorizePermission(...perms)` — allow only roles granted ALL the listed
+ *                              permissions (see config/permissions.js). Prefer
+ *                              this for feature routes so capabilities can be
+ *                              re-assigned without editing routes.
  *
- * Both reject with `403 FORBIDDEN_ROLE`. A missing `req.user` (middleware wired
- * without `authenticate` in front) yields `401 NO_AUTH`. Misconfiguration with
- * unknown role names throws at startup — a programmer error, surfaced early.
+ * Role checks reject with `403 FORBIDDEN_ROLE`; permission checks with
+ * `403 FORBIDDEN_PERMISSION`. A missing `req.user` (middleware wired without
+ * `authenticate` in front) yields `401 NO_AUTH`. Misconfiguration with unknown
+ * role/permission names throws at startup — a programmer error, surfaced early.
  */
 import ApiError from '../utils/ApiError.js';
 import { ROLE_RANK, ROLE_VALUES } from '../config/constants.js';
+import { PERMISSION_VALUES, roleHasPermission } from '../config/permissions.js';
 
 const FORBIDDEN_MESSAGE = 'You do not have permission to perform this action';
 
@@ -66,6 +72,32 @@ export function requireMinRole(minRole) {
     const rank = ROLE_RANK[req.user.role] ?? 0;
     if (rank < threshold) {
       return next(ApiError.forbidden(FORBIDDEN_MESSAGE, { code: 'FORBIDDEN_ROLE' }));
+    }
+    return next();
+  };
+}
+
+/**
+ * Allow only roles granted ALL of the listed permissions.
+ * @param {...string} requiredPermissions
+ * @returns {import('express').RequestHandler}
+ */
+export function authorizePermission(...requiredPermissions) {
+  if (requiredPermissions.length === 0) {
+    throw new Error('authorizePermission(): at least one permission is required');
+  }
+  const unknown = requiredPermissions.filter((p) => !PERMISSION_VALUES.includes(p));
+  if (unknown.length > 0) {
+    throw new Error(`authorizePermission(): unknown permission(s): ${unknown.join(', ')}`);
+  }
+
+  return function authorizePermissionMiddleware(req, _res, next) {
+    if (!req.user) {
+      return next(ApiError.unauthorized('Authentication required', { code: 'NO_AUTH' }));
+    }
+    const allowed = requiredPermissions.every((p) => roleHasPermission(req.user.role, p));
+    if (!allowed) {
+      return next(ApiError.forbidden(FORBIDDEN_MESSAGE, { code: 'FORBIDDEN_PERMISSION' }));
     }
     return next();
   };
