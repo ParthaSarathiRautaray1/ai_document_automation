@@ -49,6 +49,9 @@ export const PERMISSIONS = Object.freeze({
   APPROVAL_REQUEST: 'approval:request',
   APPROVAL_DECIDE: 'approval:decide',
   APPROVAL_CANCEL: 'approval:cancel',
+  // Version history (Module 12)
+  VERSION_READ: 'version:read',
+  VERSION_RESTORE: 'version:restore',
 });
 
 /**

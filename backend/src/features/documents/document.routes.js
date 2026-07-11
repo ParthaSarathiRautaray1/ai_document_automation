@@ -21,11 +21,15 @@ import {
   updateDocumentSchema,
 } from './document.validation.js';
 import { sendDocumentSchema } from '../emails/email.validation.js';
+import versionRoutes from '../versions/version.routes.js';
 
 const router = Router();
 
 // Every document route requires authentication.
 router.use(authenticate);
+
+// Version history is nested under a document (Module 12): /:id/versions/*.
+router.use('/:id/versions', versionRoutes);
 
 router.get(
   '/',

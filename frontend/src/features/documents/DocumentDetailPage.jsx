@@ -19,6 +19,7 @@ import { PERMISSIONS } from '@/lib/permissions';
 import { documentSchema, sendDocumentSchema } from '@/lib/validators';
 import { useAuthStore } from '@/store/authStore';
 import DocumentApprovalPanel from '@/features/approvals/DocumentApprovalPanel';
+import DocumentVersionsPanel from '@/features/versions/DocumentVersionsPanel';
 import {
   deleteDocument,
   downloadDocumentPdf,
@@ -285,6 +286,7 @@ export default function DocumentDetailPage() {
   const canExport = can(PERMISSIONS.DOCUMENT_EXPORT);
   const canSend = can(PERMISSIONS.DOCUMENT_SEND);
   const canViewApprovals = can(PERMISSIONS.APPROVAL_READ);
+  const canViewVersions = can(PERMISSIONS.VERSION_READ);
 
   const documentQuery = useQuery({ queryKey: ['document', id], queryFn: () => getDocument(id) });
 
@@ -399,6 +401,7 @@ export default function DocumentDetailPage() {
         <DocumentForm document={document} canEdit={canEdit} onSaved={onSaved} />
         {canEdit ? <RegeneratePanel document={document} onSaved={onSaved} /> : null}
         {canViewApprovals ? <DocumentApprovalPanel documentId={document.id} /> : null}
+        {canViewVersions ? <DocumentVersionsPanel documentId={document.id} /> : null}
         {canSend ? <DeliverPanel document={document} /> : null}
       </main>
     </div>

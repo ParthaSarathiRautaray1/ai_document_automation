@@ -11,8 +11,10 @@ import Document from './document.model.js';
 import Template from '../templates/template.model.js';
 import Customer from '../customers/customer.model.js';
 import { renderContent } from '../templates/template.engine.js';
+import { snapshotDocument } from '../versions/version.service.js';
 import ApiError from '../../utils/ApiError.js';
 import { orgScope, requireOrganization, listResources } from '../../utils/query.js';
+import { VERSION_CHANGE_TYPE } from '../../config/constants.js';
 
 /**
  * Load a document scoped to the actor's org, or throw 404. Shared by every
@@ -120,6 +122,8 @@ export async function generateDocument(actor, data) {
   });
 
   await document.save();
+  // Capture the initial version (Module 12).
+  await snapshotDocument(document, { changeType: VERSION_CHANGE_TYPE.GENERATED, actor });
   return document.toJSON();
 }
 
@@ -140,12 +144,16 @@ export async function regenerateDocument(actor, id, values = {}) {
   document.content = rendered.content;
   document.missingRequired = rendered.missingRequired;
   await document.save();
+  // Re-rendering is a material change — snapshot it (Module 12).
+  await snapshotDocument(document, { changeType: VERSION_CHANGE_TYPE.REGENERATED, actor });
   return document.toJSON();
 }
 
 /** Update editable document fields (title/type/status/content/customer/tags). */
 export async function updateDocument(actor, id, updates) {
   const document = await loadDocument(actor, id);
+
+  const previousContent = document.content;
 
   const { customerId, ...rest } = updates;
   if (customerId !== undefined) {
@@ -154,6 +162,11 @@ export async function updateDocument(actor, id, updates) {
   Object.assign(document, rest);
 
   await document.save();
+  // Only a content change materially alters the document's history (Module 12);
+  // metadata-only edits (status, tags, …) don't produce a new version.
+  if (document.content !== previousContent) {
+    await snapshotDocument(document, { changeType: VERSION_CHANGE_TYPE.EDITED, actor });
+  }
   return document.toJSON();
 }
 

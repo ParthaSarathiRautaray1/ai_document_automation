@@ -64,6 +64,10 @@ export const PERMISSIONS = Object.freeze({
   APPROVAL_REQUEST: 'approval:request', // route a document for approval
   APPROVAL_DECIDE: 'approval:decide', // approve/reject a request you are an approver on
   APPROVAL_CANCEL: 'approval:cancel', // withdraw a pending approval request
+
+  // Version history (Module 12)
+  VERSION_READ: 'version:read', // view a document's version history + diffs
+  VERSION_RESTORE: 'version:restore', // roll a document back to a previous version
 });
 
 export const PERMISSION_VALUES = Object.freeze(Object.values(PERMISSIONS));
@@ -100,6 +104,8 @@ const {
   APPROVAL_REQUEST,
   APPROVAL_DECIDE,
   APPROVAL_CANCEL,
+  VERSION_READ,
+  VERSION_RESTORE,
 } = PERMISSIONS;
 
 /**
@@ -118,6 +124,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
     DOCUMENT_READ,
     DOCUMENT_EXPORT,
     APPROVAL_READ,
+    VERSION_READ,
   ]),
   // Managers additionally read users and create/update customers, catalog,
   // templates, and documents (no delete).
@@ -144,6 +151,8 @@ export const ROLE_PERMISSIONS = Object.freeze({
     APPROVAL_REQUEST,
     APPROVAL_DECIDE,
     APPROVAL_CANCEL,
+    VERSION_READ,
+    VERSION_RESTORE,
   ]),
   [ROLES.ADMIN]: Object.freeze([
     USER_READ,
@@ -176,6 +185,8 @@ export const ROLE_PERMISSIONS = Object.freeze({
     APPROVAL_REQUEST,
     APPROVAL_DECIDE,
     APPROVAL_CANCEL,
+    VERSION_READ,
+    VERSION_RESTORE,
   ]),
   [ROLES.SUPER_ADMIN]: Object.freeze([
     USER_READ,
@@ -209,6 +220,8 @@ export const ROLE_PERMISSIONS = Object.freeze({
     APPROVAL_REQUEST,
     APPROVAL_DECIDE,
     APPROVAL_CANCEL,
+    VERSION_READ,
+    VERSION_RESTORE,
   ]),
 });
 

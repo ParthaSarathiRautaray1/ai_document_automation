@@ -40,6 +40,7 @@ describe('permission policy', () => {
       PERMISSIONS.DOCUMENT_READ,
       PERMISSIONS.DOCUMENT_EXPORT,
       PERMISSIONS.APPROVAL_READ,
+      PERMISSIONS.VERSION_READ,
     ]);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.USER_READ)).toBe(false);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.CUSTOMER_CREATE)).toBe(false);
@@ -55,6 +56,9 @@ describe('permission policy', () => {
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.APPROVAL_READ)).toBe(true);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.APPROVAL_REQUEST)).toBe(false);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.APPROVAL_DECIDE)).toBe(false);
+    // Members can view version history but not restore a version (Module 12).
+    expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.VERSION_READ)).toBe(true);
+    expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.VERSION_RESTORE)).toBe(false);
   });
 
   it('grants managers user read + org read + customer/catalog/template create/update', () => {
@@ -81,6 +85,8 @@ describe('permission policy', () => {
       PERMISSIONS.APPROVAL_REQUEST,
       PERMISSIONS.APPROVAL_DECIDE,
       PERMISSIONS.APPROVAL_CANCEL,
+      PERMISSIONS.VERSION_READ,
+      PERMISSIONS.VERSION_RESTORE,
     ]);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.USER_UPDATE_ROLE)).toBe(false);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.ORG_UPDATE)).toBe(false);
@@ -95,6 +101,8 @@ describe('permission policy', () => {
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.APPROVAL_REQUEST)).toBe(true);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.APPROVAL_DECIDE)).toBe(true);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.APPROVAL_CANCEL)).toBe(true);
+    // Managers can restore a document to a previous version (Module 12).
+    expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.VERSION_RESTORE)).toBe(true);
   });
 
   it('grants admins user + org + customer + catalog + template management, but not user delete', () => {
@@ -111,6 +119,8 @@ describe('permission policy', () => {
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.EMAIL_RETRY)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.APPROVAL_REQUEST)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.APPROVAL_CANCEL)).toBe(true);
+    expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.VERSION_READ)).toBe(true);
+    expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.VERSION_RESTORE)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.USER_DELETE)).toBe(false);
   });
 

@@ -259,6 +259,22 @@ export const APPROVAL_DECISION = Object.freeze({
 
 export const APPROVAL_DECISION_VALUES = Object.freeze(Object.values(APPROVAL_DECISION));
 
+/**
+ * How a document version came to exist (Module 12 — Version History). Each time a
+ * document materially changes, an immutable snapshot is appended to its history:
+ * `generated` when first created from a template, `regenerated` when re-rendered
+ * from its snapshot, `edited` when its content was changed by hand, and `restored`
+ * when a previous version was rolled back onto the live document.
+ */
+export const VERSION_CHANGE_TYPE = Object.freeze({
+  GENERATED: 'generated',
+  REGENERATED: 'regenerated',
+  EDITED: 'edited',
+  RESTORED: 'restored',
+});
+
+export const VERSION_CHANGE_TYPE_VALUES = Object.freeze(Object.values(VERSION_CHANGE_TYPE));
+
 export const TOKEN_TYPES = Object.freeze({
   ACCESS: 'access',
   REFRESH: 'refresh',
