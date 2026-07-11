@@ -58,6 +58,12 @@ export const PERMISSIONS = Object.freeze({
   DOCUMENT_SEND: 'document:send', // deliver a document to a recipient by email
   EMAIL_READ: 'email:read', // view the organization's email log
   EMAIL_RETRY: 'email:retry', // re-attempt a failed/queued email
+
+  // Approval workflow (Module 11)
+  APPROVAL_READ: 'approval:read', // view approval requests (list + detail)
+  APPROVAL_REQUEST: 'approval:request', // route a document for approval
+  APPROVAL_DECIDE: 'approval:decide', // approve/reject a request you are an approver on
+  APPROVAL_CANCEL: 'approval:cancel', // withdraw a pending approval request
 });
 
 export const PERMISSION_VALUES = Object.freeze(Object.values(PERMISSIONS));
@@ -90,6 +96,10 @@ const {
   DOCUMENT_SEND,
   EMAIL_READ,
   EMAIL_RETRY,
+  APPROVAL_READ,
+  APPROVAL_REQUEST,
+  APPROVAL_DECIDE,
+  APPROVAL_CANCEL,
 } = PERMISSIONS;
 
 /**
@@ -107,6 +117,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
     TEMPLATE_READ,
     DOCUMENT_READ,
     DOCUMENT_EXPORT,
+    APPROVAL_READ,
   ]),
   // Managers additionally read users and create/update customers, catalog,
   // templates, and documents (no delete).
@@ -129,6 +140,10 @@ export const ROLE_PERMISSIONS = Object.freeze({
     DOCUMENT_SEND,
     EMAIL_READ,
     EMAIL_RETRY,
+    APPROVAL_READ,
+    APPROVAL_REQUEST,
+    APPROVAL_DECIDE,
+    APPROVAL_CANCEL,
   ]),
   [ROLES.ADMIN]: Object.freeze([
     USER_READ,
@@ -157,6 +172,10 @@ export const ROLE_PERMISSIONS = Object.freeze({
     DOCUMENT_SEND,
     EMAIL_READ,
     EMAIL_RETRY,
+    APPROVAL_READ,
+    APPROVAL_REQUEST,
+    APPROVAL_DECIDE,
+    APPROVAL_CANCEL,
   ]),
   [ROLES.SUPER_ADMIN]: Object.freeze([
     USER_READ,
@@ -186,6 +205,10 @@ export const ROLE_PERMISSIONS = Object.freeze({
     DOCUMENT_SEND,
     EMAIL_READ,
     EMAIL_RETRY,
+    APPROVAL_READ,
+    APPROVAL_REQUEST,
+    APPROVAL_DECIDE,
+    APPROVAL_CANCEL,
   ]),
 });
 

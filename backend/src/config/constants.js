@@ -215,6 +215,50 @@ export const EMAIL_STATUS_VALUES = Object.freeze(Object.values(EMAIL_STATUS));
 /** How many times the queue will attempt to deliver a message before failing. */
 export const EMAIL_MAX_ATTEMPTS = 3;
 
+/**
+ * Approval request lifecycle (Module 11 — Approval Workflow). A request routes a
+ * document to one or more approvers. `pending` while awaiting decisions;
+ * `approved`/`rejected` are terminal outcomes; `cancelled` when withdrawn by the
+ * requester/admin before a decision was reached.
+ */
+export const APPROVAL_STATUS = Object.freeze({
+  PENDING: 'pending',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  CANCELLED: 'cancelled',
+});
+
+export const APPROVAL_STATUS_VALUES = Object.freeze(Object.values(APPROVAL_STATUS));
+
+/**
+ * How many approvers must approve for the request to be approved (Module 11).
+ * `all` = every approver must approve; `any` = a single approval suffices. Under
+ * either policy, one rejection rejects the whole request.
+ */
+export const APPROVAL_POLICY = Object.freeze({
+  ALL: 'all',
+  ANY: 'any',
+});
+
+export const APPROVAL_POLICY_VALUES = Object.freeze(Object.values(APPROVAL_POLICY));
+
+/** Per-approver decision status within a request (Module 11). */
+export const APPROVER_STATUS = Object.freeze({
+  PENDING: 'pending',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+});
+
+export const APPROVER_STATUS_VALUES = Object.freeze(Object.values(APPROVER_STATUS));
+
+/** The decision an approver submits on their step (Module 11). */
+export const APPROVAL_DECISION = Object.freeze({
+  APPROVE: 'approve',
+  REJECT: 'reject',
+});
+
+export const APPROVAL_DECISION_VALUES = Object.freeze(Object.values(APPROVAL_DECISION));
+
 export const TOKEN_TYPES = Object.freeze({
   ACCESS: 'access',
   REFRESH: 'refresh',

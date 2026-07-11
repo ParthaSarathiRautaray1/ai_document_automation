@@ -44,6 +44,11 @@ export const PERMISSIONS = Object.freeze({
   DOCUMENT_SEND: 'document:send',
   EMAIL_READ: 'email:read',
   EMAIL_RETRY: 'email:retry',
+  // Approval workflow (Module 11)
+  APPROVAL_READ: 'approval:read',
+  APPROVAL_REQUEST: 'approval:request',
+  APPROVAL_DECIDE: 'approval:decide',
+  APPROVAL_CANCEL: 'approval:cancel',
 });
 
 /**

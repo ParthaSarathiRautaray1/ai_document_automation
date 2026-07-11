@@ -39,6 +39,7 @@ describe('permission policy', () => {
       PERMISSIONS.TEMPLATE_READ,
       PERMISSIONS.DOCUMENT_READ,
       PERMISSIONS.DOCUMENT_EXPORT,
+      PERMISSIONS.APPROVAL_READ,
     ]);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.USER_READ)).toBe(false);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.CUSTOMER_CREATE)).toBe(false);
@@ -50,6 +51,10 @@ describe('permission policy', () => {
     // But not deliver it by email or read the email log (Module 9).
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.DOCUMENT_SEND)).toBe(false);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.EMAIL_READ)).toBe(false);
+    // Members can view approval requests but not request/decide/cancel (Module 11).
+    expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.APPROVAL_READ)).toBe(true);
+    expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.APPROVAL_REQUEST)).toBe(false);
+    expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.APPROVAL_DECIDE)).toBe(false);
   });
 
   it('grants managers user read + org read + customer/catalog/template create/update', () => {
@@ -72,6 +77,10 @@ describe('permission policy', () => {
       PERMISSIONS.DOCUMENT_SEND,
       PERMISSIONS.EMAIL_READ,
       PERMISSIONS.EMAIL_RETRY,
+      PERMISSIONS.APPROVAL_READ,
+      PERMISSIONS.APPROVAL_REQUEST,
+      PERMISSIONS.APPROVAL_DECIDE,
+      PERMISSIONS.APPROVAL_CANCEL,
     ]);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.USER_UPDATE_ROLE)).toBe(false);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.ORG_UPDATE)).toBe(false);
@@ -82,6 +91,10 @@ describe('permission policy', () => {
     // Managers can deliver documents by email and see the email log (Module 9).
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.DOCUMENT_SEND)).toBe(true);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.EMAIL_READ)).toBe(true);
+    // Managers can request/decide/cancel approvals (Module 11).
+    expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.APPROVAL_REQUEST)).toBe(true);
+    expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.APPROVAL_DECIDE)).toBe(true);
+    expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.APPROVAL_CANCEL)).toBe(true);
   });
 
   it('grants admins user + org + customer + catalog + template management, but not user delete', () => {
@@ -96,6 +109,8 @@ describe('permission policy', () => {
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.DOCUMENT_SEND)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.EMAIL_READ)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.EMAIL_RETRY)).toBe(true);
+    expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.APPROVAL_REQUEST)).toBe(true);
+    expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.APPROVAL_CANCEL)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.USER_DELETE)).toBe(false);
   });
 

@@ -230,3 +230,11 @@ export const sendDocumentSchema = z.object({
   message: z.string().trim().max(2000).optional(),
   attachPdf: z.boolean().optional(),
 });
+
+// --- Approval workflow (Module 11) ------------------------------------------
+// Route a document for approval: at least one approver, a policy, optional note.
+export const requestApprovalSchema = z.object({
+  approverIds: z.array(z.string()).min(1, 'Select at least one approver').max(20),
+  policy: z.enum(['all', 'any']).optional(),
+  note: z.string().trim().max(2000).optional(),
+});

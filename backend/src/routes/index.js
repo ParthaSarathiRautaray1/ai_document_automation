@@ -11,6 +11,7 @@ import productRoutes from '../features/products/product.routes.js';
 import templateRoutes from '../features/templates/template.routes.js';
 import documentRoutes from '../features/documents/document.routes.js';
 import emailRoutes from '../features/emails/email.routes.js';
+import approvalRoutes from '../features/approvals/approval.routes.js';
 
 const router = Router();
 
@@ -23,5 +24,6 @@ router.use('/products', productRoutes);
 router.use('/templates', templateRoutes);
 router.use('/documents', documentRoutes);
 router.use('/emails', emailRoutes);
+router.use('/approvals', approvalRoutes);
 
 export default router;
