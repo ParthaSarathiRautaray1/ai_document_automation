@@ -102,6 +102,16 @@ api.interceptors.response.use(
 );
 
 /**
+ * Drop empty/undefined/null params so the strict backend query schemas stay
+ * happy (they reject unknown/blank keys). Shared by every list API call.
+ */
+export function cleanParams(params = {}) {
+  return Object.fromEntries(
+    Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '')
+  );
+}
+
+/**
  * Normalize an Axios error into the app's error envelope so UI code can render
  * a message (and inspect `code`/`details`) without knowing about Axios.
  */

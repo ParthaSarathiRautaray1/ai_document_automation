@@ -10,14 +10,8 @@
  *  - DELETE /templates/:id       → null
  *  - POST   /templates/:id/render → { render: { content, missingRequired, ... } }
  */
-import { api } from '@/lib/api';
+import { api, cleanParams } from '@/lib/api';
 
-/** Drop empty/undefined params so the strict backend query schema stays happy. */
-function cleanParams(params = {}) {
-  return Object.fromEntries(
-    Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '')
-  );
-}
 
 export async function listTemplates(params = {}) {
   const { data } = await api.get('/templates', { params: cleanParams(params) });

@@ -8,27 +8,11 @@ import crypto from 'node:crypto';
 import User from './user.model.js';
 import Organization from '../organizations/organization.model.js';
 import ApiError from '../../utils/ApiError.js';
+import { orgScope, requireOrganization, listResources } from '../../utils/query.js';
 import { sendInvitationEmail } from '../../services/email.service.js';
 import env from '../../config/env.js';
 import logger from '../../config/logger.js';
 import { ROLES, ROLE_RANK, USER_STATUS } from '../../config/constants.js';
-
-/** Escape user input before using it in a RegExp (prevents invalid/abusive patterns). */
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-/**
- * Tenant-isolation filter. Every user query is confined to the actor's own
- * organization, so an admin in one org can never see or touch users in another.
- * `super_admin` is a global/out-of-band role and operates across all tenants.
- * @param {{ role: string, organization: import('mongoose').Types.ObjectId | null }} actor
- * @returns {object}
- */
-function orgScope(actor) {
-  if (actor.role === ROLES.SUPER_ADMIN) return {};
-  return { organization: actor.organization ?? null };
-}
 
 /**
  * List users with pagination, optional filtering (role/status) and free-text
@@ -41,24 +25,15 @@ function orgScope(actor) {
  * @returns {Promise<{ users: object[], meta: { page:number, limit:number, total:number, pages:number } }>}
  */
 export async function listUsers(actor, { page, limit, sort, q, role, status }) {
-  const filter = { ...orgScope(actor) };
-  if (role) filter.role = role;
-  if (status) filter.status = status;
-  if (q) {
-    const rx = new RegExp(escapeRegExp(q), 'i');
-    filter.$or = [{ firstName: rx }, { lastName: rx }, { email: rx }];
-  }
-
-  const skip = (page - 1) * limit;
-  const [docs, total] = await Promise.all([
-    User.find(filter).sort(sort).skip(skip).limit(limit),
-    User.countDocuments(filter),
-  ]);
-
-  return {
-    users: docs.map((doc) => doc.toJSON()),
-    meta: { page, limit, total, pages: Math.max(1, Math.ceil(total / limit)) },
-  };
+  return listResources(User, 'users', {
+    actor,
+    page,
+    limit,
+    sort,
+    filters: { role, status },
+    q,
+    searchFields: ['firstName', 'lastName', 'email'],
+  });
 }
 
 /**
@@ -136,11 +111,7 @@ export async function updateUserRole({ actor, targetId, role }) {
  * @returns {Promise<object>} the created (invited) user
  */
 export async function inviteUser({ actor, email, firstName, lastName, role }) {
-  if (!actor.organization) {
-    throw ApiError.badRequest('You must belong to an organization to invite members', {
-      code: 'NO_ORGANIZATION',
-    });
-  }
+  requireOrganization(actor, 'invite members');
 
   const actorRank = ROLE_RANK[actor.role] ?? 0;
   const newRole = role || ROLES.MEMBER;

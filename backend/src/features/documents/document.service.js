@@ -12,32 +12,7 @@ import Template from '../templates/template.model.js';
 import Customer from '../customers/customer.model.js';
 import { renderContent } from '../templates/template.engine.js';
 import ApiError from '../../utils/ApiError.js';
-import { ROLES } from '../../config/constants.js';
-
-/** Escape user input before using it in a RegExp. */
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-/**
- * Tenant-isolation filter. Confines every query to the actor's own organization.
- * `super_admin` is a global role and operates across all tenants.
- * @param {{ role: string, organization: import('mongoose').Types.ObjectId | null }} actor
- * @returns {object}
- */
-function orgScope(actor) {
-  if (actor.role === ROLES.SUPER_ADMIN) return {};
-  return { organization: actor.organization ?? null };
-}
-
-/** Require the actor to belong to an organization (documents are org-scoped). */
-function requireOrganization(actor) {
-  if (!actor.organization) {
-    throw ApiError.badRequest('You must belong to an organization to manage documents', {
-      code: 'NO_ORGANIZATION',
-    });
-  }
-}
+import { orgScope, requireOrganization, listResources } from '../../utils/query.js';
 
 /**
  * Load a document scoped to the actor's org, or throw 404. Shared by every
@@ -97,24 +72,15 @@ export async function listDocuments(
   actor,
   { page, limit, sort, q, type, status, tag, templateId, customerId }
 ) {
-  const filter = { ...orgScope(actor) };
-  if (type) filter.type = type;
-  if (status) filter.status = status;
-  if (tag) filter.tags = tag;
-  if (templateId) filter.template = templateId;
-  if (customerId) filter.customer = customerId;
-  if (q) filter.title = new RegExp(escapeRegExp(q), 'i');
-
-  const skip = (page - 1) * limit;
-  const [docs, total] = await Promise.all([
-    Document.find(filter).sort(sort).skip(skip).limit(limit),
-    Document.countDocuments(filter),
-  ]);
-
-  return {
-    documents: docs.map((doc) => doc.toJSON()),
-    meta: { page, limit, total, pages: Math.max(1, Math.ceil(total / limit)) },
-  };
+  return listResources(Document, 'documents', {
+    actor,
+    page,
+    limit,
+    sort,
+    filters: { type, status, tags: tag, template: templateId, customer: customerId },
+    q,
+    searchFields: ['title'],
+  });
 }
 
 /** A single document by id, scoped to the actor's org. */
@@ -130,7 +96,7 @@ export async function getDocumentById(actor, id) {
  * @param {{ templateId:string, title?:string, customerId?:string|null, status?:string, values?:object, tags?:string[] }} data
  */
 export async function generateDocument(actor, data) {
-  requireOrganization(actor);
+  requireOrganization(actor, 'manage documents');
 
   const template = await loadTemplate(actor, data.templateId);
   const customerId = await assertCustomer(actor, data.customerId);

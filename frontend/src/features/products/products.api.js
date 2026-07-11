@@ -9,14 +9,8 @@
  *  - PATCH  /products/:id      → { product }
  *  - DELETE /products/:id      → null
  */
-import { api } from '@/lib/api';
+import { api, cleanParams } from '@/lib/api';
 
-/** Drop empty/undefined params so the strict backend query schema stays happy. */
-function cleanParams(params = {}) {
-  return Object.fromEntries(
-    Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '')
-  );
-}
 
 export async function listProducts(params = {}) {
   const { data } = await api.get('/products', { params: cleanParams(params) });

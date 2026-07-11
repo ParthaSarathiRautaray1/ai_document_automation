@@ -8,9 +8,7 @@ import {
   TEMPLATE_STATUS_VALUES,
   TEMPLATE_VARIABLE_TYPE_VALUES,
 } from '../../config/constants.js';
-
-/** 24-char hex Mongo ObjectId. */
-const objectId = (label = 'id') => z.string().regex(/^[a-f\d]{24}$/i, `Invalid ${label}`);
+import { objectId, listQuery, sortParam } from '../../utils/validation.js';
 
 export const templateIdParamSchema = z.object({ id: objectId('template id') }).strict();
 
@@ -83,20 +81,13 @@ export const updateTemplateSchema = z
   .strict()
   .refine((body) => Object.keys(body).length > 0, { message: 'Provide at least one field to update' });
 
-export const listTemplatesQuerySchema = z
-  .object({
-    page: z.coerce.number().int().positive().default(1),
-    limit: z.coerce.number().int().positive().max(100).default(20),
-    sort: z
-      .enum(['-createdAt', 'createdAt', 'name', '-name', 'status', '-status'])
-      .default('-createdAt'),
-    // Free-text search across name + description (case-insensitive).
-    q: z.string().trim().min(1).max(120).optional(),
-    type: z.enum(TEMPLATE_TYPE_VALUES).optional(),
-    status: z.enum(TEMPLATE_STATUS_VALUES).optional(),
-    tag: z.string().trim().min(1).max(40).optional(),
-  })
-  .strict();
+// Free-text search across name + description (case-insensitive).
+export const listTemplatesQuerySchema = listQuery({
+  sort: sortParam(['-createdAt', 'createdAt', 'name', '-name', 'status', '-status']),
+  type: z.enum(TEMPLATE_TYPE_VALUES).optional(),
+  status: z.enum(TEMPLATE_STATUS_VALUES).optional(),
+  tag: z.string().trim().min(1).max(40).optional(),
+});
 
 // Render preview: a bag of values keyed by variable key. Values render as text,
 // so numbers/booleans are accepted and coerced by the engine.

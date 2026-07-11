@@ -8,14 +8,8 @@
  *  - PATCH /users/:id/role   → { user }
  *  - PATCH /users/:id/status → { user }
  */
-import { api } from '@/lib/api';
+import { api, cleanParams } from '@/lib/api';
 
-/** Drop empty/undefined params so the strict backend query schema stays happy. */
-function cleanParams(params = {}) {
-  return Object.fromEntries(
-    Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '')
-  );
-}
 
 export async function listUsers(params = {}) {
   const { data } = await api.get('/users', { params: cleanParams(params) });

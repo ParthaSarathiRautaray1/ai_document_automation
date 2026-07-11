@@ -1,15 +1,17 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Search, UserPlus, Trash2 } from 'lucide-react';
+import { UserPlus, Trash2 } from 'lucide-react';
 
 import { AppHeader } from '@/components/AppHeader';
+import { Pagination } from '@/components/Pagination';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/ui/search-input';
 import { FormField } from '@/components/ui/field';
 import { Select } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
@@ -33,9 +35,9 @@ import {
 } from '@/lib/roles';
 import { useAuthStore } from '@/store/authStore';
 import { inviteMember, removeMember } from '@/features/organizations/organizations.api';
+import { useListQuery } from '@/hooks/useListQuery';
 import { listUsers, updateUserRole, updateUserStatus } from './users.api';
 
-const PAGE_SIZE = 20;
 const STATUS_BADGE = { active: 'success', suspended: 'destructive', invited: 'warning' };
 
 /** Collapsible "invite a teammate" form (shown to users with org:manage_members). */
@@ -121,16 +123,6 @@ function InviteMemberPanel({ roleOptions, onInvited }) {
   );
 }
 
-/** Debounce a rapidly-changing value (e.g. a search box) by `delay` ms. */
-function useDebouncedValue(value, delay = 350) {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const id = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(id);
-  }, [value, delay]);
-  return debounced;
-}
-
 function formatDate(value) {
   if (!value) return '—';
   return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(value));
@@ -141,21 +133,9 @@ export default function UsersPage() {
   const can = useAuthStore((s) => s.can);
   const queryClient = useQueryClient();
 
-  const [search, setSearch] = useState('');
-  const [role, setRole] = useState('');
-  const [status, setStatus] = useState('');
-  const [page, setPage] = useState(1);
-  const q = useDebouncedValue(search.trim());
-
-  // Reset to the first page whenever the filters change.
-  useEffect(() => {
-    setPage(1);
-  }, [q, role, status]);
-
-  const params = useMemo(
-    () => ({ page, limit: PAGE_SIZE, q: q || undefined, role: role || undefined, status: status || undefined }),
-    [page, q, role, status]
-  );
+  const { search, setSearch, filters, setFilter, params, nextPage, prevPage } = useListQuery({
+    filters: { role: '', status: '' },
+  });
 
   const usersQuery = useQuery({
     queryKey: ['users', params],
@@ -218,25 +198,17 @@ export default function UsersPage() {
           <CardContent className="space-y-4">
             {/* Filters */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className="relative flex-1">
-                <Search
-                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                  aria-hidden="true"
-                />
-                <Input
-                  className="pl-9"
-                  type="search"
-                  placeholder="Search by name or email"
-                  aria-label="Search users"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
+              <SearchInput
+                placeholder="Search by name or email"
+                aria-label="Search users"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
               <Select
                 className="sm:w-40"
                 aria-label="Filter by role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
+                value={filters.role}
+                onChange={(e) => setFilter('role', e.target.value)}
               >
                 <option value="">All roles</option>
                 {ROLE_VALUES.map((r) => (
@@ -248,8 +220,8 @@ export default function UsersPage() {
               <Select
                 className="sm:w-40"
                 aria-label="Filter by status"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                value={filters.status}
+                onChange={(e) => setFilter('status', e.target.value)}
               >
                 <option value="">All statuses</option>
                 <option value={USER_STATUS.ACTIVE}>Active</option>
@@ -385,31 +357,13 @@ export default function UsersPage() {
             )}
 
             {/* Pagination */}
-            {meta && meta.pages > 1 ? (
-              <div className="flex items-center justify-between pt-2 text-sm text-muted-foreground">
-                <span>
-                  Page {meta.page} of {meta.pages} · {meta.total} user{meta.total === 1 ? '' : 's'}
-                </span>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={meta.page <= 1 || usersQuery.isFetching}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={meta.page >= meta.pages || usersQuery.isFetching}
-                    onClick={() => setPage((p) => p + 1)}
-                  >
-                    Next
-                  </Button>
-                </div>
-              </div>
-            ) : null}
+            <Pagination
+              meta={meta}
+              busy={usersQuery.isFetching}
+              onPrev={prevPage}
+              onNext={nextPage}
+              noun="user"
+            />
           </CardContent>
         </Card>
       </main>

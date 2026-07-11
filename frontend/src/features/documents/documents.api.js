@@ -12,7 +12,7 @@
  *  - GET    /documents/:id/pdf        → application/pdf (binary)
  *  - POST   /documents/:id/send       → { email }
  */
-import { api } from '@/lib/api';
+import { api, cleanParams } from '@/lib/api';
 
 /** Parse the download filename from a Content-Disposition header, or fall back. */
 function filenameFromDisposition(disposition, fallback) {
@@ -20,12 +20,6 @@ function filenameFromDisposition(disposition, fallback) {
   return match ? match[1] : fallback;
 }
 
-/** Drop empty/undefined params so the strict backend query schema stays happy. */
-function cleanParams(params = {}) {
-  return Object.fromEntries(
-    Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '')
-  );
-}
 
 export async function listDocuments(params = {}) {
   const { data } = await api.get('/documents', { params: cleanParams(params) });

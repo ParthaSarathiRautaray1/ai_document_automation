@@ -4,9 +4,7 @@
  */
 import { z } from 'zod';
 import { PRODUCT_TYPE_VALUES, PRODUCT_STATUS_VALUES } from '../../config/constants.js';
-
-/** 24-char hex Mongo ObjectId. */
-const objectId = (label = 'id') => z.string().regex(/^[a-f\d]{24}$/i, `Invalid ${label}`);
+import { objectId, listQuery, sortParam } from '../../utils/validation.js';
 
 export const productIdParamSchema = z.object({ id: objectId('product id') }).strict();
 
@@ -63,17 +61,10 @@ export const updateProductSchema = z
   .strict()
   .refine((body) => Object.keys(body).length > 0, { message: 'Provide at least one field to update' });
 
-export const listProductsQuerySchema = z
-  .object({
-    page: z.coerce.number().int().positive().default(1),
-    limit: z.coerce.number().int().positive().max(100).default(20),
-    sort: z
-      .enum(['-createdAt', 'createdAt', 'name', '-name', 'price', '-price', 'status', '-status'])
-      .default('-createdAt'),
-    // Free-text search across name + sku + category (case-insensitive).
-    q: z.string().trim().min(1).max(120).optional(),
-    type: z.enum(PRODUCT_TYPE_VALUES).optional(),
-    status: z.enum(PRODUCT_STATUS_VALUES).optional(),
-    category: z.string().trim().min(1).max(120).optional(),
-  })
-  .strict();
+// Free-text search across name + sku + category (case-insensitive).
+export const listProductsQuerySchema = listQuery({
+  sort: sortParam(['-createdAt', 'createdAt', 'name', '-name', 'price', '-price', 'status', '-status']),
+  type: z.enum(PRODUCT_TYPE_VALUES).optional(),
+  status: z.enum(PRODUCT_STATUS_VALUES).optional(),
+  category: z.string().trim().min(1).max(120).optional(),
+});

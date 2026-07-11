@@ -7,14 +7,8 @@
  *  - GET  /emails/:id        → { email }
  *  - POST /emails/:id/retry  → { email }
  */
-import { api } from '@/lib/api';
+import { api, cleanParams } from '@/lib/api';
 
-/** Drop empty/undefined params so the strict backend query schema stays happy. */
-function cleanParams(params = {}) {
-  return Object.fromEntries(
-    Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '')
-  );
-}
 
 export async function listEmails(params = {}) {
   const { data } = await api.get('/emails', { params: cleanParams(params) });

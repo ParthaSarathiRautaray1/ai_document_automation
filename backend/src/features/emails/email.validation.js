@@ -4,9 +4,7 @@
  */
 import { z } from 'zod';
 import { EMAIL_TYPE_VALUES, EMAIL_STATUS_VALUES } from '../../config/constants.js';
-
-/** 24-char hex Mongo ObjectId. */
-const objectId = (label = 'id') => z.string().regex(/^[a-f\d]{24}$/i, `Invalid ${label}`);
+import { objectId, listQuery, sortParam } from '../../utils/validation.js';
 
 export const emailIdParamSchema = z.object({ id: objectId('email id') }).strict();
 
@@ -21,17 +19,10 @@ export const sendDocumentSchema = z
   })
   .strict();
 
-export const listEmailsQuerySchema = z
-  .object({
-    page: z.coerce.number().int().positive().default(1),
-    limit: z.coerce.number().int().positive().max(100).default(20),
-    sort: z
-      .enum(['-createdAt', 'createdAt', 'status', '-status', 'to', '-to'])
-      .default('-createdAt'),
-    // Free-text search across subject + recipient (case-insensitive).
-    q: z.string().trim().min(1).max(120).optional(),
-    type: z.enum(EMAIL_TYPE_VALUES).optional(),
-    status: z.enum(EMAIL_STATUS_VALUES).optional(),
-    documentId: objectId('document id').optional(),
-  })
-  .strict();
+// Free-text search across subject + recipient (case-insensitive).
+export const listEmailsQuerySchema = listQuery({
+  sort: sortParam(['-createdAt', 'createdAt', 'status', '-status', 'to', '-to']),
+  type: z.enum(EMAIL_TYPE_VALUES).optional(),
+  status: z.enum(EMAIL_STATUS_VALUES).optional(),
+  documentId: objectId('document id').optional(),
+});

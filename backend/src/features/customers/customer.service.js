@@ -7,32 +7,7 @@
  */
 import Customer from './customer.model.js';
 import ApiError from '../../utils/ApiError.js';
-import { ROLES } from '../../config/constants.js';
-
-/** Escape user input before using it in a RegExp. */
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-/**
- * Tenant-isolation filter. Confines every customer query to the actor's own
- * organization. `super_admin` is a global role and operates across all tenants.
- * @param {{ role: string, organization: import('mongoose').Types.ObjectId | null }} actor
- * @returns {object}
- */
-function orgScope(actor) {
-  if (actor.role === ROLES.SUPER_ADMIN) return {};
-  return { organization: actor.organization ?? null };
-}
-
-/** Require the actor to belong to an organization (customers are org-scoped). */
-function requireOrganization(actor) {
-  if (!actor.organization) {
-    throw ApiError.badRequest('You must belong to an organization to manage customers', {
-      code: 'NO_ORGANIZATION',
-    });
-  }
-}
+import { orgScope, requireOrganization, listResources } from '../../utils/query.js';
 
 /**
  * Load a customer document scoped to the actor's org, or throw 404. Shared by
@@ -79,24 +54,15 @@ function applyPrimaryExclusivity(list, keepId) {
  * @param {{ page:number, limit:number, sort:string, q?:string, type?:string, status?:string }} query
  */
 export async function listCustomers(actor, { page, limit, sort, q, type, status }) {
-  const filter = { ...orgScope(actor) };
-  if (type) filter.type = type;
-  if (status) filter.status = status;
-  if (q) {
-    const rx = new RegExp(escapeRegExp(q), 'i');
-    filter.$or = [{ name: rx }, { email: rx }, { phone: rx }];
-  }
-
-  const skip = (page - 1) * limit;
-  const [docs, total] = await Promise.all([
-    Customer.find(filter).sort(sort).skip(skip).limit(limit),
-    Customer.countDocuments(filter),
-  ]);
-
-  return {
-    customers: docs.map((doc) => doc.toJSON()),
-    meta: { page, limit, total, pages: Math.max(1, Math.ceil(total / limit)) },
-  };
+  return listResources(Customer, 'customers', {
+    actor,
+    page,
+    limit,
+    sort,
+    filters: { type, status },
+    q,
+    searchFields: ['name', 'email', 'phone'],
+  });
 }
 
 /** A single customer by id, scoped to the actor's org. */
@@ -112,7 +78,7 @@ export async function getCustomerById(actor, id) {
  * @param {object} data - validated create payload
  */
 export async function createCustomer(actor, data) {
-  requireOrganization(actor);
+  requireOrganization(actor, 'manage customers');
 
   const customer = new Customer({
     ...data,

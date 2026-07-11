@@ -1,16 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Plus, Search } from 'lucide-react';
+import { FileText, Plus } from 'lucide-react';
 
 import { AppHeader } from '@/components/AppHeader';
+import { Pagination } from '@/components/Pagination';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/ui/search-input';
 import { FormField } from '@/components/ui/field';
 import { Select } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
@@ -25,22 +27,12 @@ import {
 import { getApiError } from '@/lib/api';
 import { PERMISSIONS } from '@/lib/permissions';
 import { templateSchema } from '@/lib/validators';
+import { useListQuery } from '@/hooks/useListQuery';
 import { useAuthStore } from '@/store/authStore';
 import { createTemplate, listTemplates } from './templates.api';
 
-const PAGE_SIZE = 20;
 const STATUS_BADGE = { draft: 'default', active: 'success', archived: 'warning' };
 const TYPES = ['invoice', 'quote', 'contract', 'proposal', 'letter', 'other'];
-
-/** Debounce a rapidly-changing value (e.g. a search box) by `delay` ms. */
-function useDebouncedValue(value, delay = 350) {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const id = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(id);
-  }, [value, delay]);
-  return debounced;
-}
 
 /** Collapsible "new template" form (shown to users with template:create). */
 function NewTemplatePanel({ onCreated }) {
@@ -135,22 +127,11 @@ export default function TemplatesPage() {
   const can = useAuthStore((s) => s.can);
   const navigate = useNavigate();
 
-  const [search, setSearch] = useState('');
-  const [type, setType] = useState('');
-  const [status, setStatus] = useState('');
-  const [page, setPage] = useState(1);
-  const q = useDebouncedValue(search.trim());
+  const { search, setSearch, filters, setFilter, params, nextPage, prevPage } = useListQuery({
+    filters: { type: '', status: '' },
+  });
 
   const canCreate = can(PERMISSIONS.TEMPLATE_CREATE);
-
-  useEffect(() => {
-    setPage(1);
-  }, [q, type, status]);
-
-  const params = useMemo(
-    () => ({ page, limit: PAGE_SIZE, q: q || undefined, type: type || undefined, status: status || undefined }),
-    [page, q, type, status]
-  );
 
   const templatesQuery = useQuery({
     queryKey: ['templates', params],
@@ -176,25 +157,17 @@ export default function TemplatesPage() {
           <CardContent className="space-y-4">
             {/* Filters */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className="relative flex-1">
-                <Search
-                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                  aria-hidden="true"
-                />
-                <Input
-                  className="pl-9"
-                  type="search"
-                  placeholder="Search by name or description"
-                  aria-label="Search templates"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
+              <SearchInput
+                placeholder="Search by name or description"
+                aria-label="Search templates"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
               <Select
                 className="sm:w-40"
                 aria-label="Filter by type"
-                value={type}
-                onChange={(e) => setType(e.target.value)}
+                value={filters.type}
+                onChange={(e) => setFilter('type', e.target.value)}
               >
                 <option value="">All types</option>
                 {TYPES.map((t) => (
@@ -206,8 +179,8 @@ export default function TemplatesPage() {
               <Select
                 className="sm:w-40"
                 aria-label="Filter by status"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                value={filters.status}
+                onChange={(e) => setFilter('status', e.target.value)}
               >
                 <option value="">All statuses</option>
                 <option value="draft">Draft</option>
@@ -268,31 +241,13 @@ export default function TemplatesPage() {
             )}
 
             {/* Pagination */}
-            {meta && meta.pages > 1 ? (
-              <div className="flex items-center justify-between pt-2 text-sm text-muted-foreground">
-                <span>
-                  Page {meta.page} of {meta.pages} · {meta.total} template{meta.total === 1 ? '' : 's'}
-                </span>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={meta.page <= 1 || templatesQuery.isFetching}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={meta.page >= meta.pages || templatesQuery.isFetching}
-                    onClick={() => setPage((p) => p + 1)}
-                  >
-                    Next
-                  </Button>
-                </div>
-              </div>
-            ) : null}
+            <Pagination
+              meta={meta}
+              busy={templatesQuery.isFetching}
+              onPrev={prevPage}
+              onNext={nextPage}
+              noun="template"
+            />
           </CardContent>
         </Card>
       </main>

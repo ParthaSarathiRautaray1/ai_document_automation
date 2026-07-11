@@ -4,9 +4,7 @@
  */
 import { z } from 'zod';
 import { DOCUMENT_TYPE_VALUES, DOCUMENT_STATUS_VALUES } from '../../config/constants.js';
-
-/** 24-char hex Mongo ObjectId. */
-const objectId = (label = 'id') => z.string().regex(/^[a-f\d]{24}$/i, `Invalid ${label}`);
+import { objectId, listQuery, sortParam } from '../../utils/validation.js';
 
 export const documentIdParamSchema = z.object({ id: objectId('document id') }).strict();
 
@@ -50,19 +48,12 @@ export const updateDocumentSchema = z
   .strict()
   .refine((body) => Object.keys(body).length > 0, { message: 'Provide at least one field to update' });
 
-export const listDocumentsQuerySchema = z
-  .object({
-    page: z.coerce.number().int().positive().default(1),
-    limit: z.coerce.number().int().positive().max(100).default(20),
-    sort: z
-      .enum(['-createdAt', 'createdAt', 'title', '-title', 'status', '-status'])
-      .default('-createdAt'),
-    // Free-text search across title (case-insensitive).
-    q: z.string().trim().min(1).max(120).optional(),
-    type: z.enum(DOCUMENT_TYPE_VALUES).optional(),
-    status: z.enum(DOCUMENT_STATUS_VALUES).optional(),
-    tag: z.string().trim().min(1).max(40).optional(),
-    templateId: objectId('template id').optional(),
-    customerId: objectId('customer id').optional(),
-  })
-  .strict();
+// Free-text search across title (case-insensitive).
+export const listDocumentsQuerySchema = listQuery({
+  sort: sortParam(['-createdAt', 'createdAt', 'title', '-title', 'status', '-status']),
+  type: z.enum(DOCUMENT_TYPE_VALUES).optional(),
+  status: z.enum(DOCUMENT_STATUS_VALUES).optional(),
+  tag: z.string().trim().min(1).max(40).optional(),
+  templateId: objectId('template id').optional(),
+  customerId: objectId('customer id').optional(),
+});

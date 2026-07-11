@@ -15,30 +15,8 @@ import { getDocumentById } from '../documents/document.service.js';
 import { exportDocumentPdf } from '../documents/pdf.service.js';
 import { documentDeliveryEmail } from '../../services/email.templates.js';
 import ApiError from '../../utils/ApiError.js';
-import { ROLES, EMAIL_TYPE, EMAIL_STATUS } from '../../config/constants.js';
-
-/** Escape user input before using it in a RegExp. */
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-/**
- * Tenant-isolation filter. Confines every query to the actor's own organization.
- * `super_admin` is a global role and operates across all tenants.
- */
-function orgScope(actor) {
-  if (actor.role === ROLES.SUPER_ADMIN) return {};
-  return { organization: actor.organization ?? null };
-}
-
-/** Require the actor to belong to an organization (emails are org-scoped). */
-function requireOrganization(actor) {
-  if (!actor.organization) {
-    throw ApiError.badRequest('You must belong to an organization to send email', {
-      code: 'NO_ORGANIZATION',
-    });
-  }
-}
+import { orgScope, requireOrganization, listResources } from '../../utils/query.js';
+import { EMAIL_TYPE, EMAIL_STATUS } from '../../config/constants.js';
 
 /** Load an email message scoped to the actor's org, or throw 404. */
 async function loadMessage(actor, id) {
@@ -89,7 +67,7 @@ async function buildAttachments(actor, documentId, attachPdf) {
  * @returns {Promise<object>} the persisted email message (JSON)
  */
 export async function sendDocument(actor, documentId, options = {}) {
-  requireOrganization(actor);
+  requireOrganization(actor, 'send email');
 
   // Tenant-scoped load (cross-org → 404 DOCUMENT_NOT_FOUND).
   const document = await getDocumentById(actor, documentId);
@@ -126,25 +104,15 @@ export async function sendDocument(actor, documentId, options = {}) {
  * and free-text search across subject + recipient. Scoped to the actor's org.
  */
 export async function listEmails(actor, { page, limit, sort, q, type, status, documentId }) {
-  const filter = { ...orgScope(actor) };
-  if (type) filter.type = type;
-  if (status) filter.status = status;
-  if (documentId) filter.document = documentId;
-  if (q) {
-    const rx = new RegExp(escapeRegExp(q), 'i');
-    filter.$or = [{ subject: rx }, { to: rx }];
-  }
-
-  const skip = (page - 1) * limit;
-  const [messages, total] = await Promise.all([
-    EmailMessage.find(filter).sort(sort).skip(skip).limit(limit),
-    EmailMessage.countDocuments(filter),
-  ]);
-
-  return {
-    emails: messages.map((m) => m.toJSON()),
-    meta: { page, limit, total, pages: Math.max(1, Math.ceil(total / limit)) },
-  };
+  return listResources(EmailMessage, 'emails', {
+    actor,
+    page,
+    limit,
+    sort,
+    filters: { type, status, document: documentId },
+    q,
+    searchFields: ['subject', 'to'],
+  });
 }
 
 /** A single email message by id, scoped to the actor's org. */

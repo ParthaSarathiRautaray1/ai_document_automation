@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { setAccessToken, getAccessToken, getApiError } from '@/lib/api';
+import { setAccessToken, getAccessToken, getApiError, cleanParams } from '@/lib/api';
 
 afterEach(() => setAccessToken(null));
 
@@ -41,5 +41,25 @@ describe('getApiError', () => {
     expect(result.message).toBe('Network Error');
     expect(result.status).toBeNull();
     expect(result.code).toBeNull();
+  });
+});
+
+describe('cleanParams', () => {
+  it('drops undefined, null, and empty-string values', () => {
+    expect(
+      cleanParams({ page: 1, q: '', type: undefined, status: null, category: 'a' })
+    ).toEqual({ page: 1, category: 'a' });
+  });
+
+  it('keeps falsey-but-meaningful values like 0 and false', () => {
+    expect(cleanParams({ page: 0, flag: false, name: 'x' })).toEqual({
+      page: 0,
+      flag: false,
+      name: 'x',
+    });
+  });
+
+  it('returns an empty object for no params', () => {
+    expect(cleanParams()).toEqual({});
   });
 });

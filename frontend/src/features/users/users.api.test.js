@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock the shared axios instance so we assert on request shape without a network.
-vi.mock('@/lib/api', () => ({
+vi.mock('@/lib/api', async (importOriginal) => ({
+  ...(await importOriginal()),
   api: { get: vi.fn(), patch: vi.fn() },
 }));
 
