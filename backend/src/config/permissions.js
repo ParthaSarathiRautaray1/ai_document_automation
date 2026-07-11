@@ -32,6 +32,12 @@ export const PERMISSIONS = Object.freeze({
   CUSTOMER_CREATE: 'customer:create', // add a customer
   CUSTOMER_UPDATE: 'customer:update', // edit a customer + its contacts/addresses
   CUSTOMER_DELETE: 'customer:delete', // remove a customer
+
+  // Product & service catalog (Module 5)
+  PRODUCT_READ: 'product:read', // view catalog items (list + detail)
+  PRODUCT_CREATE: 'product:create', // add a catalog item
+  PRODUCT_UPDATE: 'product:update', // edit a catalog item
+  PRODUCT_DELETE: 'product:delete', // remove a catalog item
 });
 
 export const PERMISSION_VALUES = Object.freeze(Object.values(PERMISSIONS));
@@ -48,6 +54,10 @@ const {
   CUSTOMER_CREATE,
   CUSTOMER_UPDATE,
   CUSTOMER_DELETE,
+  PRODUCT_READ,
+  PRODUCT_CREATE,
+  PRODUCT_UPDATE,
+  PRODUCT_DELETE,
 } = PERMISSIONS;
 
 /**
@@ -56,15 +66,18 @@ const {
  * later without a rewrite.
  */
 export const ROLE_PERMISSIONS = Object.freeze({
-  // Every org member can read their own org and browse the customer list.
-  [ROLES.MEMBER]: Object.freeze([ORG_READ, CUSTOMER_READ]),
-  // Managers additionally read users and create/update customers (no delete).
+  // Every org member can read their own org and browse the customer + catalog lists.
+  [ROLES.MEMBER]: Object.freeze([ORG_READ, CUSTOMER_READ, PRODUCT_READ]),
+  // Managers additionally read users and create/update customers + catalog (no delete).
   [ROLES.MANAGER]: Object.freeze([
     USER_READ,
     ORG_READ,
     CUSTOMER_READ,
     CUSTOMER_CREATE,
     CUSTOMER_UPDATE,
+    PRODUCT_READ,
+    PRODUCT_CREATE,
+    PRODUCT_UPDATE,
   ]),
   [ROLES.ADMIN]: Object.freeze([
     USER_READ,
@@ -77,6 +90,10 @@ export const ROLE_PERMISSIONS = Object.freeze({
     CUSTOMER_CREATE,
     CUSTOMER_UPDATE,
     CUSTOMER_DELETE,
+    PRODUCT_READ,
+    PRODUCT_CREATE,
+    PRODUCT_UPDATE,
+    PRODUCT_DELETE,
   ]),
   [ROLES.SUPER_ADMIN]: Object.freeze([
     USER_READ,
@@ -90,6 +107,10 @@ export const ROLE_PERMISSIONS = Object.freeze({
     CUSTOMER_CREATE,
     CUSTOMER_UPDATE,
     CUSTOMER_DELETE,
+    PRODUCT_READ,
+    PRODUCT_CREATE,
+    PRODUCT_UPDATE,
+    PRODUCT_DELETE,
   ]),
 });
 

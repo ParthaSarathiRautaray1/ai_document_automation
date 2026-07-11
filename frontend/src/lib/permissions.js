@@ -23,6 +23,11 @@ export const PERMISSIONS = Object.freeze({
   CUSTOMER_CREATE: 'customer:create',
   CUSTOMER_UPDATE: 'customer:update',
   CUSTOMER_DELETE: 'customer:delete',
+  // Product & service catalog (Module 5)
+  PRODUCT_READ: 'product:read',
+  PRODUCT_CREATE: 'product:create',
+  PRODUCT_UPDATE: 'product:update',
+  PRODUCT_DELETE: 'product:delete',
 });
 
 /**

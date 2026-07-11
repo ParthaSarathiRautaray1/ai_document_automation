@@ -74,6 +74,32 @@ export const ADDRESS_TYPE = Object.freeze({
 
 export const ADDRESS_TYPE_VALUES = Object.freeze(Object.values(ADDRESS_TYPE));
 
+/**
+ * Catalog item classification (Module 5). A `product` is a physical/tangible
+ * good you sell; a `service` is labour/time-based work.
+ */
+export const PRODUCT_TYPE = Object.freeze({
+  PRODUCT: 'product',
+  SERVICE: 'service',
+});
+
+export const PRODUCT_TYPE_VALUES = Object.freeze(Object.values(PRODUCT_TYPE));
+
+/**
+ * Catalog item lifecycle status (Module 5). `archived` hides an item from the
+ * default working set (and from being sold) without deleting its history.
+ */
+export const PRODUCT_STATUS = Object.freeze({
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  ARCHIVED: 'archived',
+});
+
+export const PRODUCT_STATUS_VALUES = Object.freeze(Object.values(PRODUCT_STATUS));
+
+/** Default pricing currency (ISO 4217) when a catalog item omits one. */
+export const DEFAULT_CURRENCY = 'USD';
+
 export const TOKEN_TYPES = Object.freeze({
   ACCESS: 'access',
   REFRESH: 'refresh',

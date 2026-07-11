@@ -119,3 +119,38 @@ export const addressSchema = z.object({
   country: z.string().trim().max(120).optional(),
   isPrimary: z.boolean().optional(),
 });
+
+// --- Products (Module 5) ----------------------------------------------------
+// Optional non-negative money/number field that also accepts an empty string
+// (a cleared input in the UI). Coerced from the text input's string value.
+const optionalMoney = (label) =>
+  z.union([
+    z.literal(''),
+    z.coerce.number({ invalid_type_error: `${label} must be a number` }).min(0, `${label} cannot be negative`),
+  ]);
+
+// Create / edit a catalog item (product or service) with pricing + tax.
+export const productSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Product name is required')
+    .max(200, 'Product name must be 200 characters or fewer'),
+  sku: z.string().trim().max(60).optional(),
+  type: z.enum(['product', 'service']).optional(),
+  status: z.enum(['active', 'inactive', 'archived']).optional(),
+  description: z.string().trim().max(2000).optional(),
+  price: optionalMoney('Price').optional(),
+  currency: z
+    .union([z.literal(''), z.string().trim().toUpperCase().regex(/^[A-Z]{3}$/, 'Use a 3-letter currency code')])
+    .optional(),
+  cost: optionalMoney('Cost').optional(),
+  taxRate: z
+    .union([
+      z.literal(''),
+      z.coerce.number({ invalid_type_error: 'Tax rate must be a number' }).min(0, 'Tax rate cannot be negative').max(100, 'Tax rate cannot exceed 100'),
+    ])
+    .optional(),
+  unit: z.string().trim().max(40).optional(),
+  category: z.string().trim().max(120).optional(),
+});

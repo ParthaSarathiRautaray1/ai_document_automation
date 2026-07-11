@@ -7,6 +7,7 @@ import authRoutes from '../features/auth/auth.routes.js';
 import userRoutes from '../features/users/user.routes.js';
 import organizationRoutes from '../features/organizations/organization.routes.js';
 import customerRoutes from '../features/customers/customer.routes.js';
+import productRoutes from '../features/products/product.routes.js';
 
 const router = Router();
 
@@ -15,5 +16,6 @@ router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/organizations', organizationRoutes);
 router.use('/customers', customerRoutes);
+router.use('/products', productRoutes);
 
 export default router;
