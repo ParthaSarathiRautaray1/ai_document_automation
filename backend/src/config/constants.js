@@ -42,6 +42,38 @@ export const ORG_STATUS = Object.freeze({
 
 export const ORG_STATUS_VALUES = Object.freeze(Object.values(ORG_STATUS));
 
+/**
+ * Customer classification (Module 4). A `business` is a company/organization you
+ * do business with; an `individual` is a single person.
+ */
+export const CUSTOMER_TYPE = Object.freeze({
+  BUSINESS: 'business',
+  INDIVIDUAL: 'individual',
+});
+
+export const CUSTOMER_TYPE_VALUES = Object.freeze(Object.values(CUSTOMER_TYPE));
+
+/**
+ * Customer lifecycle status (Module 4). `archived` hides a customer from the
+ * default working set without deleting its history.
+ */
+export const CUSTOMER_STATUS = Object.freeze({
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  ARCHIVED: 'archived',
+});
+
+export const CUSTOMER_STATUS_VALUES = Object.freeze(Object.values(CUSTOMER_STATUS));
+
+/** Address classification on a customer (Module 4). */
+export const ADDRESS_TYPE = Object.freeze({
+  BILLING: 'billing',
+  SHIPPING: 'shipping',
+  OTHER: 'other',
+});
+
+export const ADDRESS_TYPE_VALUES = Object.freeze(Object.values(ADDRESS_TYPE));
+
 export const TOKEN_TYPES = Object.freeze({
   ACCESS: 'access',
   REFRESH: 'refresh',

@@ -18,6 +18,11 @@ export const PERMISSIONS = Object.freeze({
   ORG_READ: 'org:read',
   ORG_UPDATE: 'org:update',
   ORG_MANAGE_MEMBERS: 'org:manage_members',
+  // Customer management (Module 4)
+  CUSTOMER_READ: 'customer:read',
+  CUSTOMER_CREATE: 'customer:create',
+  CUSTOMER_UPDATE: 'customer:update',
+  CUSTOMER_DELETE: 'customer:delete',
 });
 
 /**

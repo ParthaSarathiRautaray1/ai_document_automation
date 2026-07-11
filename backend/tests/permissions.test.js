@@ -29,26 +29,36 @@ function run(middleware, req) {
 }
 
 describe('permission policy', () => {
-  it('grants members only read of their own organization', () => {
-    // No user-administration permissions; can view their own org (Module 3).
-    expect(permissionsForRole(ROLES.MEMBER)).toEqual([PERMISSIONS.ORG_READ]);
+  it('grants members read of their own organization + customers', () => {
+    // No user-administration permissions; can view their own org (Module 3) and
+    // browse customers (Module 4).
+    expect(permissionsForRole(ROLES.MEMBER)).toEqual([
+      PERMISSIONS.ORG_READ,
+      PERMISSIONS.CUSTOMER_READ,
+    ]);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.USER_READ)).toBe(false);
+    expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.CUSTOMER_CREATE)).toBe(false);
   });
 
-  it('grants managers user read + org read', () => {
+  it('grants managers user read + org read + customer create/update', () => {
     expect(permissionsForRole(ROLES.MANAGER)).toEqual([
       PERMISSIONS.USER_READ,
       PERMISSIONS.ORG_READ,
+      PERMISSIONS.CUSTOMER_READ,
+      PERMISSIONS.CUSTOMER_CREATE,
+      PERMISSIONS.CUSTOMER_UPDATE,
     ]);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.USER_UPDATE_ROLE)).toBe(false);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.ORG_UPDATE)).toBe(false);
+    expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.CUSTOMER_DELETE)).toBe(false);
   });
 
-  it('grants admins user + org management, but not user delete', () => {
+  it('grants admins user + org + customer management, but not user delete', () => {
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.USER_UPDATE_ROLE)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.USER_UPDATE_STATUS)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.ORG_UPDATE)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.ORG_MANAGE_MEMBERS)).toBe(true);
+    expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.CUSTOMER_DELETE)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.USER_DELETE)).toBe(false);
   });
 

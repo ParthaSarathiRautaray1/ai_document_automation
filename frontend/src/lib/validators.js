@@ -77,3 +77,45 @@ export const organizationSchema = z.object({
   billingEmail: z.union([z.literal(''), email]).optional(),
   timezone: z.string().trim().max(64).optional(),
 });
+
+// --- Customers (Module 4) ---------------------------------------------------
+// Optional email that also accepts an empty string (cleared field in the UI).
+const optionalEmail = z.union([z.literal(''), email]).optional();
+
+// Create / edit a customer's core profile. Contacts and addresses are managed
+// separately via their own forms once the customer exists.
+export const customerSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Customer name is required')
+    .max(200, 'Customer name must be 200 characters or fewer'),
+  type: z.enum(['business', 'individual']).optional(),
+  status: z.enum(['active', 'inactive', 'archived']).optional(),
+  email: optionalEmail,
+  phone: z.string().trim().max(40).optional(),
+  website: z.string().trim().max(200).optional(),
+  taxId: z.string().trim().max(60).optional(),
+  notes: z.string().trim().max(2000).optional(),
+});
+
+// Add / edit a contact on a customer.
+export const contactSchema = z.object({
+  name: z.string().trim().min(1, 'Contact name is required').max(120),
+  title: z.string().trim().max(120).optional(),
+  email: optionalEmail,
+  phone: z.string().trim().max(40).optional(),
+  isPrimary: z.boolean().optional(),
+});
+
+// Add / edit an address on a customer.
+export const addressSchema = z.object({
+  type: z.enum(['billing', 'shipping', 'other']).optional(),
+  line1: z.string().trim().min(1, 'Address line 1 is required').max(200),
+  line2: z.string().trim().max(200).optional(),
+  city: z.string().trim().max(120).optional(),
+  state: z.string().trim().max(120).optional(),
+  postalCode: z.string().trim().max(40).optional(),
+  country: z.string().trim().max(120).optional(),
+  isPrimary: z.boolean().optional(),
+});

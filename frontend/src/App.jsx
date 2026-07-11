@@ -15,6 +15,8 @@ import AcceptInvitePage from '@/features/auth/AcceptInvitePage';
 import DashboardPage from '@/pages/DashboardPage';
 import UsersPage from '@/features/users/UsersPage';
 import OrganizationSettingsPage from '@/features/organizations/OrganizationSettingsPage';
+import CustomersPage from '@/features/customers/CustomersPage';
+import CustomerDetailPage from '@/features/customers/CustomerDetailPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 
 function FullScreenLoader() {
@@ -57,6 +59,10 @@ export default function App() {
         </Route>
         <Route element={<RequirePermission permission={PERMISSIONS.ORG_READ} />}>
           <Route path="/organization" element={<OrganizationSettingsPage />} />
+        </Route>
+        <Route element={<RequirePermission permission={PERMISSIONS.CUSTOMER_READ} />}>
+          <Route path="/customers" element={<CustomersPage />} />
+          <Route path="/customers/:id" element={<CustomerDetailPage />} />
         </Route>
       </Route>
 

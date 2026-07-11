@@ -26,6 +26,12 @@ export const PERMISSIONS = Object.freeze({
   ORG_READ: 'org:read', // view own organization profile
   ORG_UPDATE: 'org:update', // edit organization profile/settings
   ORG_MANAGE_MEMBERS: 'org:manage_members', // invite / remove / re-role members
+
+  // Customer management (Module 4)
+  CUSTOMER_READ: 'customer:read', // view customers (list + detail)
+  CUSTOMER_CREATE: 'customer:create', // add a customer
+  CUSTOMER_UPDATE: 'customer:update', // edit a customer + its contacts/addresses
+  CUSTOMER_DELETE: 'customer:delete', // remove a customer
 });
 
 export const PERMISSION_VALUES = Object.freeze(Object.values(PERMISSIONS));
@@ -38,6 +44,10 @@ const {
   ORG_READ,
   ORG_UPDATE,
   ORG_MANAGE_MEMBERS,
+  CUSTOMER_READ,
+  CUSTOMER_CREATE,
+  CUSTOMER_UPDATE,
+  CUSTOMER_DELETE,
 } = PERMISSIONS;
 
 /**
@@ -46,8 +56,16 @@ const {
  * later without a rewrite.
  */
 export const ROLE_PERMISSIONS = Object.freeze({
-  [ROLES.MEMBER]: Object.freeze([ORG_READ]),
-  [ROLES.MANAGER]: Object.freeze([USER_READ, ORG_READ]),
+  // Every org member can read their own org and browse the customer list.
+  [ROLES.MEMBER]: Object.freeze([ORG_READ, CUSTOMER_READ]),
+  // Managers additionally read users and create/update customers (no delete).
+  [ROLES.MANAGER]: Object.freeze([
+    USER_READ,
+    ORG_READ,
+    CUSTOMER_READ,
+    CUSTOMER_CREATE,
+    CUSTOMER_UPDATE,
+  ]),
   [ROLES.ADMIN]: Object.freeze([
     USER_READ,
     USER_UPDATE_ROLE,
@@ -55,6 +73,10 @@ export const ROLE_PERMISSIONS = Object.freeze({
     ORG_READ,
     ORG_UPDATE,
     ORG_MANAGE_MEMBERS,
+    CUSTOMER_READ,
+    CUSTOMER_CREATE,
+    CUSTOMER_UPDATE,
+    CUSTOMER_DELETE,
   ]),
   [ROLES.SUPER_ADMIN]: Object.freeze([
     USER_READ,
@@ -64,6 +86,10 @@ export const ROLE_PERMISSIONS = Object.freeze({
     ORG_READ,
     ORG_UPDATE,
     ORG_MANAGE_MEMBERS,
+    CUSTOMER_READ,
+    CUSTOMER_CREATE,
+    CUSTOMER_UPDATE,
+    CUSTOMER_DELETE,
   ]),
 });
 
