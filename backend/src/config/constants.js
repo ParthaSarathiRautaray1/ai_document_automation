@@ -100,6 +100,48 @@ export const PRODUCT_STATUS_VALUES = Object.freeze(Object.values(PRODUCT_STATUS)
 /** Default pricing currency (ISO 4217) when a catalog item omits one. */
 export const DEFAULT_CURRENCY = 'USD';
 
+/**
+ * Document template classification (Module 6 — Template Engine). A template is a
+ * reusable document blueprint (body text with `{{variable}}` placeholders).
+ */
+export const TEMPLATE_TYPE = Object.freeze({
+  INVOICE: 'invoice',
+  QUOTE: 'quote',
+  CONTRACT: 'contract',
+  PROPOSAL: 'proposal',
+  LETTER: 'letter',
+  OTHER: 'other',
+});
+
+export const TEMPLATE_TYPE_VALUES = Object.freeze(Object.values(TEMPLATE_TYPE));
+
+/**
+ * Template lifecycle status (Module 6). `draft` while being authored, `active`
+ * once ready to generate documents from, `archived` to retire without deleting.
+ */
+export const TEMPLATE_STATUS = Object.freeze({
+  DRAFT: 'draft',
+  ACTIVE: 'active',
+  ARCHIVED: 'archived',
+});
+
+export const TEMPLATE_STATUS_VALUES = Object.freeze(Object.values(TEMPLATE_STATUS));
+
+/**
+ * The value type of a template variable (Module 6). Values are stored/rendered
+ * as strings; the type is a hint for the UI and (later) document generation.
+ */
+export const TEMPLATE_VARIABLE_TYPE = Object.freeze({
+  TEXT: 'text',
+  NUMBER: 'number',
+  DATE: 'date',
+  BOOLEAN: 'boolean',
+});
+
+export const TEMPLATE_VARIABLE_TYPE_VALUES = Object.freeze(
+  Object.values(TEMPLATE_VARIABLE_TYPE)
+);
+
 export const TOKEN_TYPES = Object.freeze({
   ACCESS: 'access',
   REFRESH: 'refresh',

@@ -19,6 +19,8 @@ import CustomersPage from '@/features/customers/CustomersPage';
 import CustomerDetailPage from '@/features/customers/CustomerDetailPage';
 import ProductsPage from '@/features/products/ProductsPage';
 import ProductDetailPage from '@/features/products/ProductDetailPage';
+import TemplatesPage from '@/features/templates/TemplatesPage';
+import TemplateDetailPage from '@/features/templates/TemplateDetailPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 
 function FullScreenLoader() {
@@ -69,6 +71,10 @@ export default function App() {
         <Route element={<RequirePermission permission={PERMISSIONS.PRODUCT_READ} />}>
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/products/:id" element={<ProductDetailPage />} />
+        </Route>
+        <Route element={<RequirePermission permission={PERMISSIONS.TEMPLATE_READ} />}>
+          <Route path="/templates" element={<TemplatesPage />} />
+          <Route path="/templates/:id" element={<TemplateDetailPage />} />
         </Route>
       </Route>
 

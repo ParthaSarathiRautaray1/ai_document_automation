@@ -154,3 +154,53 @@ export const productSchema = z.object({
   unit: z.string().trim().max(40).optional(),
   category: z.string().trim().max(120).optional(),
 });
+
+// --- Templates (Module 6) ---------------------------------------------------
+// A single declared variable row (managed via a field array in the UI).
+export const templateVariableSchema = z.object({
+  key: z
+    .string()
+    .trim()
+    .min(1, 'Key is required')
+    .max(60)
+    .regex(/^[a-zA-Z][a-zA-Z0-9_]*$/, 'Letters, numbers, underscores; must start with a letter'),
+  label: z.string().trim().max(120).optional(),
+  type: z.enum(['text', 'number', 'date', 'boolean']).optional(),
+  required: z.boolean().optional(),
+  defaultValue: z.string().max(1000).optional(),
+  description: z.string().trim().max(500).optional(),
+});
+
+// Create / edit a document template. Variables are validated with the field
+// array above; the schema also rejects duplicate keys (mirrors the backend).
+export const templateSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Template name is required')
+    .max(200, 'Template name must be 200 characters or fewer'),
+  description: z.string().trim().max(2000).optional(),
+  type: z.enum(['invoice', 'quote', 'contract', 'proposal', 'letter', 'other']).optional(),
+  status: z.enum(['draft', 'active', 'archived']).optional(),
+  content: z
+    .string()
+    .min(1, 'Template content is required')
+    .max(50000, 'Template content is too long'),
+  variables: z
+    .array(templateVariableSchema)
+    .max(100)
+    .superRefine((list, ctx) => {
+      const seen = new Set();
+      list.forEach((variable, index) => {
+        if (variable.key && seen.has(variable.key)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Duplicate key "${variable.key}"`,
+            path: [index, 'key'],
+          });
+        }
+        seen.add(variable.key);
+      });
+    })
+    .optional(),
+});

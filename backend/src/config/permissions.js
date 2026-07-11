@@ -38,6 +38,12 @@ export const PERMISSIONS = Object.freeze({
   PRODUCT_CREATE: 'product:create', // add a catalog item
   PRODUCT_UPDATE: 'product:update', // edit a catalog item
   PRODUCT_DELETE: 'product:delete', // remove a catalog item
+
+  // Document templates (Module 6)
+  TEMPLATE_READ: 'template:read', // view templates (list + detail) + render preview
+  TEMPLATE_CREATE: 'template:create', // add a template
+  TEMPLATE_UPDATE: 'template:update', // edit a template + its variables
+  TEMPLATE_DELETE: 'template:delete', // remove a template
 });
 
 export const PERMISSION_VALUES = Object.freeze(Object.values(PERMISSIONS));
@@ -58,6 +64,10 @@ const {
   PRODUCT_CREATE,
   PRODUCT_UPDATE,
   PRODUCT_DELETE,
+  TEMPLATE_READ,
+  TEMPLATE_CREATE,
+  TEMPLATE_UPDATE,
+  TEMPLATE_DELETE,
 } = PERMISSIONS;
 
 /**
@@ -66,9 +76,11 @@ const {
  * later without a rewrite.
  */
 export const ROLE_PERMISSIONS = Object.freeze({
-  // Every org member can read their own org and browse the customer + catalog lists.
-  [ROLES.MEMBER]: Object.freeze([ORG_READ, CUSTOMER_READ, PRODUCT_READ]),
-  // Managers additionally read users and create/update customers + catalog (no delete).
+  // Every org member can read their own org and browse the customer, catalog,
+  // and template lists.
+  [ROLES.MEMBER]: Object.freeze([ORG_READ, CUSTOMER_READ, PRODUCT_READ, TEMPLATE_READ]),
+  // Managers additionally read users and create/update customers, catalog, and
+  // templates (no delete).
   [ROLES.MANAGER]: Object.freeze([
     USER_READ,
     ORG_READ,
@@ -78,6 +90,9 @@ export const ROLE_PERMISSIONS = Object.freeze({
     PRODUCT_READ,
     PRODUCT_CREATE,
     PRODUCT_UPDATE,
+    TEMPLATE_READ,
+    TEMPLATE_CREATE,
+    TEMPLATE_UPDATE,
   ]),
   [ROLES.ADMIN]: Object.freeze([
     USER_READ,
@@ -94,6 +109,10 @@ export const ROLE_PERMISSIONS = Object.freeze({
     PRODUCT_CREATE,
     PRODUCT_UPDATE,
     PRODUCT_DELETE,
+    TEMPLATE_READ,
+    TEMPLATE_CREATE,
+    TEMPLATE_UPDATE,
+    TEMPLATE_DELETE,
   ]),
   [ROLES.SUPER_ADMIN]: Object.freeze([
     USER_READ,
@@ -111,6 +130,10 @@ export const ROLE_PERMISSIONS = Object.freeze({
     PRODUCT_CREATE,
     PRODUCT_UPDATE,
     PRODUCT_DELETE,
+    TEMPLATE_READ,
+    TEMPLATE_CREATE,
+    TEMPLATE_UPDATE,
+    TEMPLATE_DELETE,
   ]),
 });
 

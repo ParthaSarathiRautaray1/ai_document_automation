@@ -28,6 +28,11 @@ export const PERMISSIONS = Object.freeze({
   PRODUCT_CREATE: 'product:create',
   PRODUCT_UPDATE: 'product:update',
   PRODUCT_DELETE: 'product:delete',
+  // Document templates (Module 6)
+  TEMPLATE_READ: 'template:read',
+  TEMPLATE_CREATE: 'template:create',
+  TEMPLATE_UPDATE: 'template:update',
+  TEMPLATE_DELETE: 'template:delete',
 });
 
 /**

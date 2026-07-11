@@ -29,20 +29,22 @@ function run(middleware, req) {
 }
 
 describe('permission policy', () => {
-  it('grants members read of their own organization + customers + catalog', () => {
+  it('grants members read of their own organization + customers + catalog + templates', () => {
     // No user-administration permissions; can view their own org (Module 3),
-    // browse customers (Module 4), and browse the catalog (Module 5).
+    // browse customers (Module 4), the catalog (Module 5), and templates (Module 6).
     expect(permissionsForRole(ROLES.MEMBER)).toEqual([
       PERMISSIONS.ORG_READ,
       PERMISSIONS.CUSTOMER_READ,
       PERMISSIONS.PRODUCT_READ,
+      PERMISSIONS.TEMPLATE_READ,
     ]);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.USER_READ)).toBe(false);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.CUSTOMER_CREATE)).toBe(false);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.PRODUCT_CREATE)).toBe(false);
+    expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.TEMPLATE_CREATE)).toBe(false);
   });
 
-  it('grants managers user read + org read + customer/catalog create/update', () => {
+  it('grants managers user read + org read + customer/catalog/template create/update', () => {
     expect(permissionsForRole(ROLES.MANAGER)).toEqual([
       PERMISSIONS.USER_READ,
       PERMISSIONS.ORG_READ,
@@ -52,20 +54,25 @@ describe('permission policy', () => {
       PERMISSIONS.PRODUCT_READ,
       PERMISSIONS.PRODUCT_CREATE,
       PERMISSIONS.PRODUCT_UPDATE,
+      PERMISSIONS.TEMPLATE_READ,
+      PERMISSIONS.TEMPLATE_CREATE,
+      PERMISSIONS.TEMPLATE_UPDATE,
     ]);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.USER_UPDATE_ROLE)).toBe(false);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.ORG_UPDATE)).toBe(false);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.CUSTOMER_DELETE)).toBe(false);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.PRODUCT_DELETE)).toBe(false);
+    expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.TEMPLATE_DELETE)).toBe(false);
   });
 
-  it('grants admins user + org + customer + catalog management, but not user delete', () => {
+  it('grants admins user + org + customer + catalog + template management, but not user delete', () => {
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.USER_UPDATE_ROLE)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.USER_UPDATE_STATUS)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.ORG_UPDATE)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.ORG_MANAGE_MEMBERS)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.CUSTOMER_DELETE)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.PRODUCT_DELETE)).toBe(true);
+    expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.TEMPLATE_DELETE)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.USER_DELETE)).toBe(false);
   });
 
