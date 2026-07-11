@@ -37,11 +37,16 @@ describe('permission policy', () => {
       PERMISSIONS.CUSTOMER_READ,
       PERMISSIONS.PRODUCT_READ,
       PERMISSIONS.TEMPLATE_READ,
+      PERMISSIONS.DOCUMENT_READ,
+      PERMISSIONS.DOCUMENT_EXPORT,
     ]);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.USER_READ)).toBe(false);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.CUSTOMER_CREATE)).toBe(false);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.PRODUCT_CREATE)).toBe(false);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.TEMPLATE_CREATE)).toBe(false);
+    expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.DOCUMENT_CREATE)).toBe(false);
+    // Anyone who can read a document may export it to PDF (Module 8).
+    expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.DOCUMENT_EXPORT)).toBe(true);
   });
 
   it('grants managers user read + org read + customer/catalog/template create/update', () => {
@@ -57,12 +62,17 @@ describe('permission policy', () => {
       PERMISSIONS.TEMPLATE_READ,
       PERMISSIONS.TEMPLATE_CREATE,
       PERMISSIONS.TEMPLATE_UPDATE,
+      PERMISSIONS.DOCUMENT_READ,
+      PERMISSIONS.DOCUMENT_CREATE,
+      PERMISSIONS.DOCUMENT_UPDATE,
+      PERMISSIONS.DOCUMENT_EXPORT,
     ]);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.USER_UPDATE_ROLE)).toBe(false);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.ORG_UPDATE)).toBe(false);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.CUSTOMER_DELETE)).toBe(false);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.PRODUCT_DELETE)).toBe(false);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.TEMPLATE_DELETE)).toBe(false);
+    expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.DOCUMENT_DELETE)).toBe(false);
   });
 
   it('grants admins user + org + customer + catalog + template management, but not user delete', () => {
@@ -73,6 +83,7 @@ describe('permission policy', () => {
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.CUSTOMER_DELETE)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.PRODUCT_DELETE)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.TEMPLATE_DELETE)).toBe(true);
+    expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.DOCUMENT_DELETE)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.USER_DELETE)).toBe(false);
   });
 

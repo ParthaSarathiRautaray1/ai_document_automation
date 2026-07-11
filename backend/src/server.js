@@ -10,6 +10,7 @@ import app from './app.js';
 import env from './config/env.js';
 import logger from './config/logger.js';
 import { connectDatabase, disconnectDatabase } from './config/database.js';
+import { closeBrowser } from './features/documents/pdf.renderer.js';
 
 let server;
 
@@ -27,6 +28,7 @@ async function shutdown(signal) {
   logger.warn(`${signal} received. Shutting down gracefully...`);
   try {
     if (server) await new Promise((resolve) => server.close(resolve));
+    await closeBrowser();
     await disconnectDatabase();
     logger.info('Shutdown complete.');
     process.exit(0);

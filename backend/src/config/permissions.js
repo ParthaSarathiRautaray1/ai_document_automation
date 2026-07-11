@@ -44,6 +44,15 @@ export const PERMISSIONS = Object.freeze({
   TEMPLATE_CREATE: 'template:create', // add a template
   TEMPLATE_UPDATE: 'template:update', // edit a template + its variables
   TEMPLATE_DELETE: 'template:delete', // remove a template
+
+  // Generated documents (Module 7)
+  DOCUMENT_READ: 'document:read', // view documents (list + detail)
+  DOCUMENT_CREATE: 'document:create', // generate a document from a template
+  DOCUMENT_UPDATE: 'document:update', // edit / regenerate a document
+  DOCUMENT_DELETE: 'document:delete', // remove a document
+
+  // PDF export (Module 8) — render a document to a downloadable PDF
+  DOCUMENT_EXPORT: 'document:export', // export a document as PDF
 });
 
 export const PERMISSION_VALUES = Object.freeze(Object.values(PERMISSIONS));
@@ -68,6 +77,11 @@ const {
   TEMPLATE_CREATE,
   TEMPLATE_UPDATE,
   TEMPLATE_DELETE,
+  DOCUMENT_READ,
+  DOCUMENT_CREATE,
+  DOCUMENT_UPDATE,
+  DOCUMENT_DELETE,
+  DOCUMENT_EXPORT,
 } = PERMISSIONS;
 
 /**
@@ -78,9 +92,16 @@ const {
 export const ROLE_PERMISSIONS = Object.freeze({
   // Every org member can read their own org and browse the customer, catalog,
   // and template lists.
-  [ROLES.MEMBER]: Object.freeze([ORG_READ, CUSTOMER_READ, PRODUCT_READ, TEMPLATE_READ]),
-  // Managers additionally read users and create/update customers, catalog, and
-  // templates (no delete).
+  [ROLES.MEMBER]: Object.freeze([
+    ORG_READ,
+    CUSTOMER_READ,
+    PRODUCT_READ,
+    TEMPLATE_READ,
+    DOCUMENT_READ,
+    DOCUMENT_EXPORT,
+  ]),
+  // Managers additionally read users and create/update customers, catalog,
+  // templates, and documents (no delete).
   [ROLES.MANAGER]: Object.freeze([
     USER_READ,
     ORG_READ,
@@ -93,6 +114,10 @@ export const ROLE_PERMISSIONS = Object.freeze({
     TEMPLATE_READ,
     TEMPLATE_CREATE,
     TEMPLATE_UPDATE,
+    DOCUMENT_READ,
+    DOCUMENT_CREATE,
+    DOCUMENT_UPDATE,
+    DOCUMENT_EXPORT,
   ]),
   [ROLES.ADMIN]: Object.freeze([
     USER_READ,
@@ -113,6 +138,11 @@ export const ROLE_PERMISSIONS = Object.freeze({
     TEMPLATE_CREATE,
     TEMPLATE_UPDATE,
     TEMPLATE_DELETE,
+    DOCUMENT_READ,
+    DOCUMENT_CREATE,
+    DOCUMENT_UPDATE,
+    DOCUMENT_DELETE,
+    DOCUMENT_EXPORT,
   ]),
   [ROLES.SUPER_ADMIN]: Object.freeze([
     USER_READ,
@@ -134,6 +164,11 @@ export const ROLE_PERMISSIONS = Object.freeze({
     TEMPLATE_CREATE,
     TEMPLATE_UPDATE,
     TEMPLATE_DELETE,
+    DOCUMENT_READ,
+    DOCUMENT_CREATE,
+    DOCUMENT_UPDATE,
+    DOCUMENT_DELETE,
+    DOCUMENT_EXPORT,
   ]),
 });
 

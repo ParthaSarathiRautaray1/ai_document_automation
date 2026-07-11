@@ -204,3 +204,20 @@ export const templateSchema = z.object({
     })
     .optional(),
 });
+
+// --- Documents (Module 7) ---------------------------------------------------
+// Edit a generated document's editable fields (the rendered content can be
+// hand-tweaked). Generation itself is driven by a template + values, not this.
+export const documentSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(1, 'Document title is required')
+    .max(200, 'Document title must be 200 characters or fewer'),
+  type: z.enum(['invoice', 'quote', 'contract', 'proposal', 'letter', 'other']).optional(),
+  status: z.enum(['draft', 'final', 'archived']).optional(),
+  content: z
+    .string()
+    .min(1, 'Document content is required')
+    .max(200000, 'Document content is too long'),
+});

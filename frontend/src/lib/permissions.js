@@ -33,6 +33,13 @@ export const PERMISSIONS = Object.freeze({
   TEMPLATE_CREATE: 'template:create',
   TEMPLATE_UPDATE: 'template:update',
   TEMPLATE_DELETE: 'template:delete',
+  // Generated documents (Module 7)
+  DOCUMENT_READ: 'document:read',
+  DOCUMENT_CREATE: 'document:create',
+  DOCUMENT_UPDATE: 'document:update',
+  DOCUMENT_DELETE: 'document:delete',
+  // PDF export (Module 8)
+  DOCUMENT_EXPORT: 'document:export',
 });
 
 /**

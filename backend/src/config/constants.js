@@ -142,6 +142,48 @@ export const TEMPLATE_VARIABLE_TYPE_VALUES = Object.freeze(
   Object.values(TEMPLATE_VARIABLE_TYPE)
 );
 
+/**
+ * Generated document classification (Module 7 — Document Generation). A document
+ * is a concrete instance produced by rendering a template's content with supplied
+ * values. Its type mirrors the source template's type (invoice, quote, …).
+ */
+export const DOCUMENT_TYPE = Object.freeze({
+  INVOICE: 'invoice',
+  QUOTE: 'quote',
+  CONTRACT: 'contract',
+  PROPOSAL: 'proposal',
+  LETTER: 'letter',
+  OTHER: 'other',
+});
+
+export const DOCUMENT_TYPE_VALUES = Object.freeze(Object.values(DOCUMENT_TYPE));
+
+/**
+ * Document lifecycle status (Module 7). `draft` while still being edited/filled,
+ * `final` once ready to send/export, `archived` to retire without deleting.
+ */
+export const DOCUMENT_STATUS = Object.freeze({
+  DRAFT: 'draft',
+  FINAL: 'final',
+  ARCHIVED: 'archived',
+});
+
+export const DOCUMENT_STATUS_VALUES = Object.freeze(Object.values(DOCUMENT_STATUS));
+
+/**
+ * PDF export defaults (Module 8 — PDF Engine). A document is rendered to a
+ * print-ready HTML page and converted to PDF by a headless browser.
+ */
+export const PDF_PAGE_FORMAT = 'A4';
+
+/** Page margins for generated PDFs (CSS length units). */
+export const PDF_MARGINS = Object.freeze({
+  top: '18mm',
+  right: '16mm',
+  bottom: '18mm',
+  left: '16mm',
+});
+
 export const TOKEN_TYPES = Object.freeze({
   ACCESS: 'access',
   REFRESH: 'refresh',
