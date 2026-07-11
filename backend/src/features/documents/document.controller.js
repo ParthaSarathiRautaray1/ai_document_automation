@@ -3,6 +3,7 @@
  */
 import * as documentService from './document.service.js';
 import { exportDocumentPdf } from './pdf.service.js';
+import { sendDocument } from '../emails/email.service.js';
 import asyncHandler from '../../utils/asyncHandler.js';
 import ApiResponse from '../../utils/ApiResponse.js';
 import { HTTP_STATUS } from '../../config/constants.js';
@@ -38,6 +39,11 @@ export const exportPdf = asyncHandler(async (req, res) => {
   res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
   res.setHeader('Content-Length', buffer.length);
   res.status(HTTP_STATUS.OK).send(buffer);
+});
+
+export const send = asyncHandler(async (req, res) => {
+  const email = await sendDocument(req.user, req.params.id, req.body);
+  ApiResponse.send(res, HTTP_STATUS.CREATED, { email }, 'Document delivery queued');
 });
 
 export const remove = asyncHandler(async (req, res) => {

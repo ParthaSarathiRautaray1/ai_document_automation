@@ -14,6 +14,7 @@ import {
   regenerateDocument,
   deleteDocument,
   downloadDocumentPdf,
+  sendDocument,
 } from '@/features/documents/documents.api';
 
 beforeEach(() => {
@@ -72,6 +73,15 @@ describe('deleteDocument', () => {
     api.delete.mockResolvedValue({ data: { success: true } });
     await deleteDocument('d1');
     expect(api.delete).toHaveBeenCalledWith('/documents/d1');
+  });
+});
+
+describe('sendDocument', () => {
+  it('POSTs to /send and unwraps the queued email', async () => {
+    api.post.mockResolvedValue({ data: { data: { email: { id: 'e1', status: 'skipped' } } } });
+    const email = await sendDocument('d1', { to: 'c@example.com', attachPdf: true });
+    expect(api.post).toHaveBeenCalledWith('/documents/d1/send', { to: 'c@example.com', attachPdf: true });
+    expect(email).toEqual({ id: 'e1', status: 'skipped' });
   });
 });
 

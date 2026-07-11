@@ -10,6 +10,7 @@
  *  - POST   /documents/:id/regenerate → { document }
  *  - DELETE /documents/:id            → null
  *  - GET    /documents/:id/pdf        → application/pdf (binary)
+ *  - POST   /documents/:id/send       → { email }
  */
 import { api } from '@/lib/api';
 
@@ -54,6 +55,12 @@ export async function regenerateDocument(id, values = {}) {
 export async function deleteDocument(id) {
   const { data } = await api.delete(`/documents/${id}`);
   return data;
+}
+
+/** Deliver a document by email; returns the queued email message. */
+export async function sendDocument(id, payload = {}) {
+  const { data } = await api.post(`/documents/${id}/send`, payload);
+  return data.data.email;
 }
 
 /**

@@ -1,4 +1,4 @@
-import { Building2, Contact, FileText, Files, LayoutTemplate, LogOut, Package, Users } from 'lucide-react';
+import { Building2, Contact, FileText, Files, LayoutTemplate, LogOut, Mail, Package, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
@@ -65,6 +65,11 @@ export function AppHeader() {
           {can(PERMISSIONS.DOCUMENT_READ) ? (
             <HeaderNavLink to="/documents" icon={Files}>
               Documents
+            </HeaderNavLink>
+          ) : null}
+          {can(PERMISSIONS.EMAIL_READ) ? (
+            <HeaderNavLink to="/emails" icon={Mail}>
+              Emails
             </HeaderNavLink>
           ) : null}
           {can(PERMISSIONS.ORG_READ) ? (

@@ -10,6 +10,7 @@ import customerRoutes from '../features/customers/customer.routes.js';
 import productRoutes from '../features/products/product.routes.js';
 import templateRoutes from '../features/templates/template.routes.js';
 import documentRoutes from '../features/documents/document.routes.js';
+import emailRoutes from '../features/emails/email.routes.js';
 
 const router = Router();
 
@@ -21,5 +22,6 @@ router.use('/customers', customerRoutes);
 router.use('/products', productRoutes);
 router.use('/templates', templateRoutes);
 router.use('/documents', documentRoutes);
+router.use('/emails', emailRoutes);
 
 export default router;

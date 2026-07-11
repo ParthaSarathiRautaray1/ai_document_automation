@@ -23,6 +23,7 @@ import TemplatesPage from '@/features/templates/TemplatesPage';
 import TemplateDetailPage from '@/features/templates/TemplateDetailPage';
 import DocumentsPage from '@/features/documents/DocumentsPage';
 import DocumentDetailPage from '@/features/documents/DocumentDetailPage';
+import EmailsPage from '@/features/emails/EmailsPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 
 function FullScreenLoader() {
@@ -81,6 +82,9 @@ export default function App() {
         <Route element={<RequirePermission permission={PERMISSIONS.DOCUMENT_READ} />}>
           <Route path="/documents" element={<DocumentsPage />} />
           <Route path="/documents/:id" element={<DocumentDetailPage />} />
+        </Route>
+        <Route element={<RequirePermission permission={PERMISSIONS.EMAIL_READ} />}>
+          <Route path="/emails" element={<EmailsPage />} />
         </Route>
       </Route>
 

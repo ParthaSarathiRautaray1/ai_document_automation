@@ -184,6 +184,37 @@ export const PDF_MARGINS = Object.freeze({
   left: '16mm',
 });
 
+/**
+ * Transactional email classification (Module 9 — Email Service). Records what
+ * kind of message an entry in the email log/queue represents.
+ */
+export const EMAIL_TYPE = Object.freeze({
+  PASSWORD_RESET: 'password_reset',
+  INVITATION: 'invitation',
+  DOCUMENT_DELIVERY: 'document_delivery',
+  OTHER: 'other',
+});
+
+export const EMAIL_TYPE_VALUES = Object.freeze(Object.values(EMAIL_TYPE));
+
+/**
+ * Lifecycle of a queued email (Module 9). `queued` awaits a send attempt;
+ * `sending` is in flight; `sent` succeeded; `failed` exhausted its retries;
+ * `skipped` means no email provider was configured (dev/CI) so nothing was sent.
+ */
+export const EMAIL_STATUS = Object.freeze({
+  QUEUED: 'queued',
+  SENDING: 'sending',
+  SENT: 'sent',
+  FAILED: 'failed',
+  SKIPPED: 'skipped',
+});
+
+export const EMAIL_STATUS_VALUES = Object.freeze(Object.values(EMAIL_STATUS));
+
+/** How many times the queue will attempt to deliver a message before failing. */
+export const EMAIL_MAX_ATTEMPTS = 3;
+
 export const TOKEN_TYPES = Object.freeze({
   ACCESS: 'access',
   REFRESH: 'refresh',

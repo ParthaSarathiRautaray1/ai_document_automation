@@ -171,3 +171,81 @@ export function invitationEmail(user, inviteUrl, { inviterName, orgName } = {}) 
 
   return { subject, html, text };
 }
+
+/**
+ * Document-delivery email (Module 9). Delivers a generated document to a
+ * recipient — typically as an attached PDF, with an optional cover note.
+ * @param {{ title?: string, type?: string }} document
+ * @param {{ senderName?: string, orgName?: string, message?: string, hasAttachment?: boolean }} context
+ */
+export function documentDeliveryEmail(
+  document,
+  { senderName, orgName, message, hasAttachment = true } = {}
+) {
+  const title = escapeHtml(document?.title || 'your document');
+  const org = escapeHtml(orgName || env.EMAIL_FROM_NAME);
+  const sender = escapeHtml(senderName || org);
+  const note = message ? escapeHtml(message) : '';
+  const subject = `${orgName || env.EMAIL_FROM_NAME}: ${document?.title || 'Your document'}`;
+
+  const attachmentLine = hasAttachment
+    ? 'The document is attached to this email as a PDF.'
+    : 'The document is included below.';
+
+  const noteBlock = note
+    ? `<tr>
+              <td style="padding:0 32px 16px 32px;">
+                <div style="border-left:3px solid #2563eb;background:#f8fafc;padding:12px 16px;border-radius:0 8px 8px 0;font-size:14px;line-height:1.6;color:#374151;white-space:pre-wrap;">${note}</div>
+              </td>
+            </tr>`
+    : '';
+
+  const html = `<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:0;background:#f4f5f7;font-family:Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1f2933;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f7;padding:32px 0;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e4e7eb;">
+            <tr>
+              <td style="padding:28px 32px 8px 32px;">
+                <span style="font-size:18px;font-weight:700;color:#2563eb;">${org}</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 32px 0 32px;">
+                <h1 style="margin:0 0 12px 0;font-size:20px;line-height:1.3;color:#111827;">${title}</h1>
+                <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;color:#374151;">
+                  ${sender} has sent you a document, <strong>${title}</strong>. ${attachmentLine}
+                </p>
+              </td>
+            </tr>
+            ${noteBlock}
+            <tr>
+              <td style="padding:0 32px 28px 32px;border-top:1px solid #e4e7eb;">
+                <p style="margin:16px 0 0 0;font-size:12px;line-height:1.6;color:#9aa5b1;">
+                  Sent via DocFlow&nbsp;AI. If you weren't expecting this, you can ignore this email.
+                </p>
+              </td>
+            </tr>
+          </table>
+          <p style="margin:16px 0 0 0;font-size:11px;color:#9aa5b1;">&copy; DocFlow AI</p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+
+  const text = [
+    `${senderName || orgName || env.EMAIL_FROM_NAME} has sent you a document: ${document?.title || 'your document'}.`,
+    hasAttachment ? 'The document is attached to this email as a PDF.' : '',
+    message ? '' : null,
+    message || null,
+    '',
+    'Sent via DocFlow AI.',
+  ]
+    .filter((line) => line !== null)
+    .join('\n');
+
+  return { subject, html, text };
+}

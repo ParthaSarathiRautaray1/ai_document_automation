@@ -20,6 +20,7 @@ import {
   regenerateDocumentSchema,
   updateDocumentSchema,
 } from './document.validation.js';
+import { sendDocumentSchema } from '../emails/email.validation.js';
 
 const router = Router();
 
@@ -52,6 +53,14 @@ router.get(
   authorizePermission(PERMISSIONS.DOCUMENT_EXPORT),
   validate({ params: documentIdParamSchema }),
   documentController.exportPdf
+);
+
+// Deliver the document to a recipient by email (Module 9).
+router.post(
+  '/:id/send',
+  authorizePermission(PERMISSIONS.DOCUMENT_SEND),
+  validate({ params: documentIdParamSchema, body: sendDocumentSchema }),
+  documentController.send
 );
 
 router.patch(

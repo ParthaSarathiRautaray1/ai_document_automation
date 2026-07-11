@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Download, FileText, RefreshCw, Trash2 } from 'lucide-react';
+import { ArrowLeft, Download, FileText, RefreshCw, Send, Trash2 } from 'lucide-react';
 
 import { AppHeader } from '@/components/AppHeader';
 import { Alert } from '@/components/ui/alert';
@@ -16,13 +16,14 @@ import { Select } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { getApiError } from '@/lib/api';
 import { PERMISSIONS } from '@/lib/permissions';
-import { documentSchema } from '@/lib/validators';
+import { documentSchema, sendDocumentSchema } from '@/lib/validators';
 import { useAuthStore } from '@/store/authStore';
 import {
   deleteDocument,
   downloadDocumentPdf,
   getDocument,
   regenerateDocument,
+  sendDocument,
   updateDocument,
 } from './documents.api';
 
@@ -194,6 +195,84 @@ function RegeneratePanel({ document, onSaved }) {
   );
 }
 
+/** Deliver the document to a recipient by email (gated by document:send). */
+function DeliverPanel({ document }) {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(sendDocumentSchema),
+    defaultValues: { to: '', message: '', attachPdf: true },
+  });
+
+  const mutation = useMutation({
+    mutationFn: (values) =>
+      sendDocument(document.id, {
+        to: values.to?.trim() || undefined,
+        message: values.message?.trim() || undefined,
+        attachPdf: values.attachPdf,
+      }),
+    onSuccess: () => reset({ to: '', message: '', attachPdf: true }),
+  });
+
+  const sent = mutation.data;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Deliver by email</CardTitle>
+        <CardDescription>
+          Email this document to a recipient. Leave the address blank to use the linked
+          customer&rsquo;s email. Delivery status is tracked in the email log.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit((v) => mutation.mutate(v))} className="space-y-4" noValidate>
+          {mutation.isError ? <Alert>{getApiError(mutation.error).message}</Alert> : null}
+          {sent ? (
+            <Alert variant="success">
+              Queued to {sent.to} — status: {sent.status}.
+            </Alert>
+          ) : null}
+
+          <FormField
+            id="to"
+            label="Recipient email"
+            error={errors.to?.message}
+            hint="Optional — defaults to the linked customer's email."
+          >
+            <Input id="to" type="email" placeholder="client@example.com" invalid={!!errors.to} {...register('to')} />
+          </FormField>
+
+          <FormField id="message" label="Message" error={errors.message?.message} hint="Optional cover note.">
+            <textarea
+              id="message"
+              rows={3}
+              className={textareaClass}
+              placeholder="Thanks for your business…"
+              {...register('message')}
+            />
+          </FormField>
+
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" className="h-4 w-4 rounded border-input" {...register('attachPdf')} />
+            Attach the document as a PDF
+          </label>
+
+          <div className="flex justify-end">
+            <Button type="submit" disabled={mutation.isPending}>
+              {mutation.isPending ? <Spinner /> : <Send className="h-4 w-4" />}
+              {mutation.isPending ? 'Sending…' : 'Send'}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function DocumentDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -203,6 +282,7 @@ export default function DocumentDetailPage() {
   const canEdit = can(PERMISSIONS.DOCUMENT_UPDATE);
   const canDelete = can(PERMISSIONS.DOCUMENT_DELETE);
   const canExport = can(PERMISSIONS.DOCUMENT_EXPORT);
+  const canSend = can(PERMISSIONS.DOCUMENT_SEND);
 
   const documentQuery = useQuery({ queryKey: ['document', id], queryFn: () => getDocument(id) });
 
@@ -316,6 +396,7 @@ export default function DocumentDetailPage() {
 
         <DocumentForm document={document} canEdit={canEdit} onSaved={onSaved} />
         {canEdit ? <RegeneratePanel document={document} onSaved={onSaved} /> : null}
+        {canSend ? <DeliverPanel document={document} /> : null}
       </main>
     </div>
   );

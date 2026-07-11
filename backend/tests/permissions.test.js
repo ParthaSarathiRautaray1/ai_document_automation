@@ -47,6 +47,9 @@ describe('permission policy', () => {
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.DOCUMENT_CREATE)).toBe(false);
     // Anyone who can read a document may export it to PDF (Module 8).
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.DOCUMENT_EXPORT)).toBe(true);
+    // But not deliver it by email or read the email log (Module 9).
+    expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.DOCUMENT_SEND)).toBe(false);
+    expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.EMAIL_READ)).toBe(false);
   });
 
   it('grants managers user read + org read + customer/catalog/template create/update', () => {
@@ -66,6 +69,9 @@ describe('permission policy', () => {
       PERMISSIONS.DOCUMENT_CREATE,
       PERMISSIONS.DOCUMENT_UPDATE,
       PERMISSIONS.DOCUMENT_EXPORT,
+      PERMISSIONS.DOCUMENT_SEND,
+      PERMISSIONS.EMAIL_READ,
+      PERMISSIONS.EMAIL_RETRY,
     ]);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.USER_UPDATE_ROLE)).toBe(false);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.ORG_UPDATE)).toBe(false);
@@ -73,6 +79,9 @@ describe('permission policy', () => {
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.PRODUCT_DELETE)).toBe(false);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.TEMPLATE_DELETE)).toBe(false);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.DOCUMENT_DELETE)).toBe(false);
+    // Managers can deliver documents by email and see the email log (Module 9).
+    expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.DOCUMENT_SEND)).toBe(true);
+    expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.EMAIL_READ)).toBe(true);
   });
 
   it('grants admins user + org + customer + catalog + template management, but not user delete', () => {
@@ -84,6 +93,9 @@ describe('permission policy', () => {
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.PRODUCT_DELETE)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.TEMPLATE_DELETE)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.DOCUMENT_DELETE)).toBe(true);
+    expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.DOCUMENT_SEND)).toBe(true);
+    expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.EMAIL_READ)).toBe(true);
+    expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.EMAIL_RETRY)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.USER_DELETE)).toBe(false);
   });
 

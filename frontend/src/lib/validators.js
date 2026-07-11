@@ -221,3 +221,12 @@ export const documentSchema = z.object({
     .min(1, 'Document content is required')
     .max(200000, 'Document content is too long'),
 });
+
+// --- Email delivery (Module 9) ----------------------------------------------
+// Deliver a document by email. The recipient is optional — when blank the
+// backend resolves it from the linked customer.
+export const sendDocumentSchema = z.object({
+  to: optionalEmail,
+  message: z.string().trim().max(2000).optional(),
+  attachPdf: z.boolean().optional(),
+});

@@ -40,6 +40,10 @@ export const PERMISSIONS = Object.freeze({
   DOCUMENT_DELETE: 'document:delete',
   // PDF export (Module 8)
   DOCUMENT_EXPORT: 'document:export',
+  // Email service (Module 9)
+  DOCUMENT_SEND: 'document:send',
+  EMAIL_READ: 'email:read',
+  EMAIL_RETRY: 'email:retry',
 });
 
 /**

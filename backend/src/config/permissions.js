@@ -53,6 +53,11 @@ export const PERMISSIONS = Object.freeze({
 
   // PDF export (Module 8) — render a document to a downloadable PDF
   DOCUMENT_EXPORT: 'document:export', // export a document as PDF
+
+  // Email service (Module 9)
+  DOCUMENT_SEND: 'document:send', // deliver a document to a recipient by email
+  EMAIL_READ: 'email:read', // view the organization's email log
+  EMAIL_RETRY: 'email:retry', // re-attempt a failed/queued email
 });
 
 export const PERMISSION_VALUES = Object.freeze(Object.values(PERMISSIONS));
@@ -82,6 +87,9 @@ const {
   DOCUMENT_UPDATE,
   DOCUMENT_DELETE,
   DOCUMENT_EXPORT,
+  DOCUMENT_SEND,
+  EMAIL_READ,
+  EMAIL_RETRY,
 } = PERMISSIONS;
 
 /**
@@ -118,6 +126,9 @@ export const ROLE_PERMISSIONS = Object.freeze({
     DOCUMENT_CREATE,
     DOCUMENT_UPDATE,
     DOCUMENT_EXPORT,
+    DOCUMENT_SEND,
+    EMAIL_READ,
+    EMAIL_RETRY,
   ]),
   [ROLES.ADMIN]: Object.freeze([
     USER_READ,
@@ -143,6 +154,9 @@ export const ROLE_PERMISSIONS = Object.freeze({
     DOCUMENT_UPDATE,
     DOCUMENT_DELETE,
     DOCUMENT_EXPORT,
+    DOCUMENT_SEND,
+    EMAIL_READ,
+    EMAIL_RETRY,
   ]),
   [ROLES.SUPER_ADMIN]: Object.freeze([
     USER_READ,
@@ -169,6 +183,9 @@ export const ROLE_PERMISSIONS = Object.freeze({
     DOCUMENT_UPDATE,
     DOCUMENT_DELETE,
     DOCUMENT_EXPORT,
+    DOCUMENT_SEND,
+    EMAIL_READ,
+    EMAIL_RETRY,
   ]),
 });
 

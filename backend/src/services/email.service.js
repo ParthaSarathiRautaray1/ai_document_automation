@@ -19,10 +19,11 @@ const SEND_TIMEOUT_MS = 10_000;
 /**
  * Low-level send. Returns a result object rather than throwing on a skipped
  * send; throws only on a genuine provider/network failure.
- * @param {{ to:string, toName?:string, subject:string, html:string, text?:string }} message
+ * @param {{ to:string, toName?:string, subject:string, html:string, text?:string, attachments?:Array<{ name:string, content:string }> }} message
+ *   `attachments[].content` is base64-encoded file content (Brevo's format).
  * @returns {Promise<{ delivered:boolean, skipped?:boolean, messageId?:string|null }>}
  */
-export async function sendTransactionalEmail({ to, toName, subject, html, text }) {
+export async function sendTransactionalEmail({ to, toName, subject, html, text, attachments }) {
   if (!env.BREVO_API_KEY) {
     logger.warn(`[email] BREVO_API_KEY not set — skipping send of "${subject}" to ${to}`);
     return { delivered: false, skipped: true };
@@ -44,6 +45,7 @@ export async function sendTransactionalEmail({ to, toName, subject, html, text }
         subject,
         htmlContent: html,
         textContent: text,
+        ...(attachments?.length ? { attachment: attachments } : {}),
       }),
       signal: controller.signal,
     });
