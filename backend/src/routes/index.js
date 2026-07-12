@@ -14,6 +14,7 @@ import emailRoutes from '../features/emails/email.routes.js';
 import approvalRoutes from '../features/approvals/approval.routes.js';
 import notificationRoutes from '../features/notifications/notification.routes.js';
 import auditRoutes from '../features/audit/audit.routes.js';
+import analyticsRoutes from '../features/analytics/analytics.routes.js';
 
 const router = Router();
 
@@ -29,5 +30,6 @@ router.use('/emails', emailRoutes);
 router.use('/approvals', approvalRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/audit-logs', auditRoutes);
+router.use('/analytics', analyticsRoutes);
 
 export default router;

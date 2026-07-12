@@ -327,6 +327,13 @@ export const AUDIT_ACTION = Object.freeze({
 
 export const AUDIT_ACTION_VALUES = Object.freeze(Object.values(AUDIT_ACTION));
 
+/**
+ * Dashboard & Analytics (Module 15). The "recent activity" feed returns the most
+ * recently created documents; these bound how many rows a caller may request.
+ */
+export const ANALYTICS_RECENT_DEFAULT_LIMIT = 5;
+export const ANALYTICS_RECENT_MAX_LIMIT = 20;
+
 export const TOKEN_TYPES = Object.freeze({
   ACCESS: 'access',
   REFRESH: 'refresh',

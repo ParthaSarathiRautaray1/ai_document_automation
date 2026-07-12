@@ -56,6 +56,8 @@ export const PERMISSIONS = Object.freeze({
   NOTIFICATION_READ: 'notification:read',
   // Audit logs (Module 14)
   AUDIT_READ: 'audit:read',
+  // Dashboard & analytics (Module 15)
+  ANALYTICS_READ: 'analytics:read',
 });
 
 /**

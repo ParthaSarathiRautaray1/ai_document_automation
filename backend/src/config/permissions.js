@@ -76,6 +76,12 @@ export const PERMISSIONS = Object.freeze({
   // Audit logs (Module 14) — a sensitive, org-wide activity trail, so it is an
   // admin-level read capability (managers/members do NOT get it).
   AUDIT_READ: 'audit:read', // view the organization's audit log (list + detail)
+
+  // Dashboard & analytics (Module 15) — org-scoped rollup metrics + recent
+  // activity. A read capability granted to every role (the dashboard is the
+  // authenticated landing page); each metric only counts entities the whole org
+  // can already read.
+  ANALYTICS_READ: 'analytics:read', // view the organization dashboard (metrics + recent activity)
 });
 
 export const PERMISSION_VALUES = Object.freeze(Object.values(PERMISSIONS));
@@ -116,6 +122,7 @@ const {
   VERSION_RESTORE,
   NOTIFICATION_READ,
   AUDIT_READ,
+  ANALYTICS_READ,
 } = PERMISSIONS;
 
 /**
@@ -136,6 +143,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
     APPROVAL_READ,
     VERSION_READ,
     NOTIFICATION_READ,
+    ANALYTICS_READ,
   ]),
   // Managers additionally read users and create/update customers, catalog,
   // templates, and documents (no delete).
@@ -165,6 +173,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
     VERSION_READ,
     VERSION_RESTORE,
     NOTIFICATION_READ,
+    ANALYTICS_READ,
   ]),
   [ROLES.ADMIN]: Object.freeze([
     USER_READ,
@@ -201,6 +210,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
     VERSION_RESTORE,
     NOTIFICATION_READ,
     AUDIT_READ,
+    ANALYTICS_READ,
   ]),
   [ROLES.SUPER_ADMIN]: Object.freeze([
     USER_READ,
@@ -238,6 +248,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
     VERSION_RESTORE,
     NOTIFICATION_READ,
     AUDIT_READ,
+    ANALYTICS_READ,
   ]),
 });
 
