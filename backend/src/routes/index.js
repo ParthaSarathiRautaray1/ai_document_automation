@@ -15,6 +15,7 @@ import approvalRoutes from '../features/approvals/approval.routes.js';
 import notificationRoutes from '../features/notifications/notification.routes.js';
 import auditRoutes from '../features/audit/audit.routes.js';
 import analyticsRoutes from '../features/analytics/analytics.routes.js';
+import aiRoutes from '../features/ai/ai.routes.js';
 
 const router = Router();
 
@@ -31,5 +32,6 @@ router.use('/approvals', approvalRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/audit-logs', auditRoutes);
 router.use('/analytics', analyticsRoutes);
+router.use('/ai', aiRoutes);
 
 export default router;

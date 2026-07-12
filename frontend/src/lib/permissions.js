@@ -58,6 +58,8 @@ export const PERMISSIONS = Object.freeze({
   AUDIT_READ: 'audit:read',
   // Dashboard & analytics (Module 15)
   ANALYTICS_READ: 'analytics:read',
+  // AI assistant (Module 16)
+  AI_ASSIST: 'ai:assist',
 });
 
 /**

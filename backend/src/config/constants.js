@@ -334,6 +334,48 @@ export const AUDIT_ACTION_VALUES = Object.freeze(Object.values(AUDIT_ACTION));
 export const ANALYTICS_RECENT_DEFAULT_LIMIT = 5;
 export const ANALYTICS_RECENT_MAX_LIMIT = 20;
 
+/**
+ * AI Assistant (Module 16 — OpenRouter). The assistant is strictly assistive: it
+ * runs only on explicit user action, operates on a supplied snippet of text (it
+ * never authors a whole document), and its results are cached. `AI_OPERATION`
+ * enumerates the text operations it can perform.
+ */
+export const AI_OPERATION = Object.freeze({
+  IMPROVE: 'improve', // improve clarity/professionalism of the text
+  SUMMARIZE: 'summarize', // produce a concise summary
+  SHORTEN: 'shorten', // make the text more concise
+  EXPAND: 'expand', // elaborate/flesh out the text
+  FIX_GRAMMAR: 'fix_grammar', // correct grammar & spelling only
+  CHANGE_TONE: 'change_tone', // rewrite the text in a requested tone
+});
+
+export const AI_OPERATION_VALUES = Object.freeze(Object.values(AI_OPERATION));
+
+/**
+ * Target tones for the `change_tone` operation (Module 16). Supplied by the
+ * caller when `operation === change_tone`.
+ */
+export const AI_TONE = Object.freeze({
+  PROFESSIONAL: 'professional',
+  FORMAL: 'formal',
+  FRIENDLY: 'friendly',
+  CASUAL: 'casual',
+  PERSUASIVE: 'persuasive',
+  CONCISE: 'concise',
+});
+
+export const AI_TONE_VALUES = Object.freeze(Object.values(AI_TONE));
+
+/** Upper bound on the input text an AI operation will accept (characters). */
+export const AI_MAX_INPUT_CHARS = 8000;
+
+/** Cap on the tokens the model may generate per AI request (cost control). */
+export const AI_MAX_OUTPUT_TOKENS = 1024;
+
+/** Bounds for the AI completion history feed (recent suggestions). */
+export const AI_HISTORY_DEFAULT_LIMIT = 10;
+export const AI_HISTORY_MAX_LIMIT = 50;
+
 export const TOKEN_TYPES = Object.freeze({
   ACCESS: 'access',
   REFRESH: 'refresh',
@@ -357,4 +399,6 @@ export const HTTP_STATUS = Object.freeze({
   UNPROCESSABLE_ENTITY: 422,
   TOO_MANY_REQUESTS: 429,
   INTERNAL_SERVER_ERROR: 500,
+  BAD_GATEWAY: 502,
+  SERVICE_UNAVAILABLE: 503,
 });

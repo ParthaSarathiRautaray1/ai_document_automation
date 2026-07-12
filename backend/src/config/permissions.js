@@ -82,6 +82,12 @@ export const PERMISSIONS = Object.freeze({
   // authenticated landing page); each metric only counts entities the whole org
   // can already read.
   ANALYTICS_READ: 'analytics:read', // view the organization dashboard (metrics + recent activity)
+
+  // AI assistant (Module 16) — assistive text operations on document content.
+  // A read-like capability granted to every role: it only produces a suggestion
+  // (it never mutates a document); applying a suggestion still requires
+  // `document:update`. Results are cached per org to bound cost.
+  AI_ASSIST: 'ai:assist', // use the AI assistant (generate a text suggestion + read AI history)
 });
 
 export const PERMISSION_VALUES = Object.freeze(Object.values(PERMISSIONS));
@@ -123,6 +129,7 @@ const {
   NOTIFICATION_READ,
   AUDIT_READ,
   ANALYTICS_READ,
+  AI_ASSIST,
 } = PERMISSIONS;
 
 /**
@@ -144,6 +151,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
     VERSION_READ,
     NOTIFICATION_READ,
     ANALYTICS_READ,
+    AI_ASSIST,
   ]),
   // Managers additionally read users and create/update customers, catalog,
   // templates, and documents (no delete).
@@ -174,6 +182,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
     VERSION_RESTORE,
     NOTIFICATION_READ,
     ANALYTICS_READ,
+    AI_ASSIST,
   ]),
   [ROLES.ADMIN]: Object.freeze([
     USER_READ,
@@ -211,6 +220,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
     NOTIFICATION_READ,
     AUDIT_READ,
     ANALYTICS_READ,
+    AI_ASSIST,
   ]),
   [ROLES.SUPER_ADMIN]: Object.freeze([
     USER_READ,
@@ -249,6 +259,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
     NOTIFICATION_READ,
     AUDIT_READ,
     ANALYTICS_READ,
+    AI_ASSIST,
   ]),
 });
 

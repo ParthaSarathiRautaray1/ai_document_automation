@@ -43,6 +43,7 @@ describe('permission policy', () => {
       PERMISSIONS.VERSION_READ,
       PERMISSIONS.NOTIFICATION_READ,
       PERMISSIONS.ANALYTICS_READ,
+      PERMISSIONS.AI_ASSIST,
     ]);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.USER_READ)).toBe(false);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.CUSTOMER_CREATE)).toBe(false);
@@ -67,6 +68,8 @@ describe('permission policy', () => {
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.AUDIT_READ)).toBe(false);
     // Every role can view the dashboard (Module 15).
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.ANALYTICS_READ)).toBe(true);
+    // Every role can use the AI assistant (Module 16) — assistive/read-like.
+    expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.AI_ASSIST)).toBe(true);
   });
 
   it('grants managers user read + org read + customer/catalog/template create/update', () => {
@@ -97,6 +100,7 @@ describe('permission policy', () => {
       PERMISSIONS.VERSION_RESTORE,
       PERMISSIONS.NOTIFICATION_READ,
       PERMISSIONS.ANALYTICS_READ,
+      PERMISSIONS.AI_ASSIST,
     ]);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.USER_UPDATE_ROLE)).toBe(false);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.ORG_UPDATE)).toBe(false);
@@ -138,6 +142,8 @@ describe('permission policy', () => {
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.AUDIT_READ)).toBe(true);
     // Admins can view the dashboard (Module 15).
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.ANALYTICS_READ)).toBe(true);
+    // Admins can use the AI assistant (Module 16).
+    expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.AI_ASSIST)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.USER_DELETE)).toBe(false);
   });
 
