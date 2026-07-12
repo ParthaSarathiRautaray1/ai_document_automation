@@ -12,6 +12,7 @@ import ApprovalRequest from './approval.model.js';
 import User from '../users/user.model.js';
 import { getDocumentById } from '../documents/document.service.js';
 import { notifyUsers, createNotification } from '../notifications/notification.service.js';
+import { recordAudit } from '../audit/audit.service.js';
 import ApiError from '../../utils/ApiError.js';
 import { orgScope, requireOrganization, listResources } from '../../utils/query.js';
 import {
@@ -20,6 +21,8 @@ import {
   APPROVER_STATUS,
   APPROVAL_DECISION,
   NOTIFICATION_TYPE,
+  AUDIT_ACTION,
+  AUDIT_ENTITY_TYPE,
 } from '../../config/constants.js';
 
 /** Load an approval request scoped to the actor's org, or throw 404. */
@@ -117,6 +120,16 @@ export async function requestApproval(actor, data) {
     email: true,
   });
 
+  // Record the routing on the org's audit trail (Module 14; best-effort).
+  await recordAudit(actor, {
+    organization: approval.organization,
+    action: AUDIT_ACTION.APPROVAL_REQUEST,
+    entityType: AUDIT_ENTITY_TYPE.APPROVAL,
+    entityId: approval.id,
+    entityLabel: document.title ?? null,
+    metadata: { documentId: String(document.id), policy: approval.policy },
+  });
+
   return approval.toJSON();
 }
 
@@ -198,6 +211,14 @@ export async function submitDecision(actor, id, { decision, comment }) {
     });
   }
 
+  await recordAudit(actor, {
+    organization: approval.organization,
+    action: AUDIT_ACTION.APPROVAL_DECIDE,
+    entityType: AUDIT_ENTITY_TYPE.APPROVAL,
+    entityId: approval.id,
+    metadata: { decision, status: approval.status, documentId: String(approval.document) },
+  });
+
   return approval.toJSON();
 }
 
@@ -214,5 +235,14 @@ export async function cancelApproval(actor, id) {
   approval.status = APPROVAL_STATUS.CANCELLED;
   approval.decidedAt = new Date();
   await approval.save();
+
+  await recordAudit(actor, {
+    organization: approval.organization,
+    action: AUDIT_ACTION.APPROVAL_CANCEL,
+    entityType: AUDIT_ENTITY_TYPE.APPROVAL,
+    entityId: approval.id,
+    metadata: { documentId: String(approval.document) },
+  });
+
   return approval.toJSON();
 }

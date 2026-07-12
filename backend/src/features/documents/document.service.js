@@ -12,9 +12,10 @@ import Template from '../templates/template.model.js';
 import Customer from '../customers/customer.model.js';
 import { renderContent } from '../templates/template.engine.js';
 import { snapshotDocument } from '../versions/version.service.js';
+import { recordAudit } from '../audit/audit.service.js';
 import ApiError from '../../utils/ApiError.js';
 import { orgScope, requireOrganization, listResources } from '../../utils/query.js';
-import { VERSION_CHANGE_TYPE } from '../../config/constants.js';
+import { VERSION_CHANGE_TYPE, AUDIT_ACTION, AUDIT_ENTITY_TYPE } from '../../config/constants.js';
 
 /**
  * Load a document scoped to the actor's org, or throw 404. Shared by every
@@ -124,6 +125,14 @@ export async function generateDocument(actor, data) {
   await document.save();
   // Capture the initial version (Module 12).
   await snapshotDocument(document, { changeType: VERSION_CHANGE_TYPE.GENERATED, actor });
+  // Record the action on the org's audit trail (Module 14; best-effort).
+  await recordAudit(actor, {
+    organization: document.organization,
+    action: AUDIT_ACTION.DOCUMENT_GENERATE,
+    entityType: AUDIT_ENTITY_TYPE.DOCUMENT,
+    entityId: document.id,
+    entityLabel: document.title,
+  });
   return document.toJSON();
 }
 
@@ -146,6 +155,13 @@ export async function regenerateDocument(actor, id, values = {}) {
   await document.save();
   // Re-rendering is a material change — snapshot it (Module 12).
   await snapshotDocument(document, { changeType: VERSION_CHANGE_TYPE.REGENERATED, actor });
+  await recordAudit(actor, {
+    organization: document.organization,
+    action: AUDIT_ACTION.DOCUMENT_REGENERATE,
+    entityType: AUDIT_ENTITY_TYPE.DOCUMENT,
+    entityId: document.id,
+    entityLabel: document.title,
+  });
   return document.toJSON();
 }
 
@@ -167,11 +183,26 @@ export async function updateDocument(actor, id, updates) {
   if (document.content !== previousContent) {
     await snapshotDocument(document, { changeType: VERSION_CHANGE_TYPE.EDITED, actor });
   }
+  await recordAudit(actor, {
+    organization: document.organization,
+    action: AUDIT_ACTION.DOCUMENT_UPDATE,
+    entityType: AUDIT_ENTITY_TYPE.DOCUMENT,
+    entityId: document.id,
+    entityLabel: document.title,
+  });
   return document.toJSON();
 }
 
 /** Permanently delete a document. */
 export async function deleteDocument(actor, id) {
   const document = await loadDocument(actor, id);
+  const { organization, title } = document;
   await document.deleteOne();
+  await recordAudit(actor, {
+    organization,
+    action: AUDIT_ACTION.DOCUMENT_DELETE,
+    entityType: AUDIT_ENTITY_TYPE.DOCUMENT,
+    entityId: id,
+    entityLabel: title,
+  });
 }

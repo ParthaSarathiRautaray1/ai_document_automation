@@ -291,6 +291,42 @@ export const NOTIFICATION_TYPE = Object.freeze({
 
 export const NOTIFICATION_TYPE_VALUES = Object.freeze(Object.values(NOTIFICATION_TYPE));
 
+/**
+ * The kind of entity an audit log entry refers to (Module 14 — Audit Logs). An
+ * audit log records "who did what to which entity"; `entityType` classifies the
+ * target so the trail can be filtered per resource kind.
+ */
+export const AUDIT_ENTITY_TYPE = Object.freeze({
+  DOCUMENT: 'document',
+  TEMPLATE: 'template',
+  CUSTOMER: 'customer',
+  PRODUCT: 'product',
+  APPROVAL: 'approval',
+  EMAIL: 'email',
+  USER: 'user',
+  ORGANIZATION: 'organization',
+});
+
+export const AUDIT_ENTITY_TYPE_VALUES = Object.freeze(Object.values(AUDIT_ENTITY_TYPE));
+
+/**
+ * Well-known audit action strings (Module 14). Actions follow a
+ * `<entity>.<verb>` convention. The model stores `action` as a free-form string
+ * (so future modules can record new actions without editing a central enum);
+ * these constants name the ones emitted today and keep call sites typo-safe.
+ */
+export const AUDIT_ACTION = Object.freeze({
+  DOCUMENT_GENERATE: 'document.generate',
+  DOCUMENT_REGENERATE: 'document.regenerate',
+  DOCUMENT_UPDATE: 'document.update',
+  DOCUMENT_DELETE: 'document.delete',
+  APPROVAL_REQUEST: 'approval.request',
+  APPROVAL_DECIDE: 'approval.decide',
+  APPROVAL_CANCEL: 'approval.cancel',
+});
+
+export const AUDIT_ACTION_VALUES = Object.freeze(Object.values(AUDIT_ACTION));
+
 export const TOKEN_TYPES = Object.freeze({
   ACCESS: 'access',
   REFRESH: 'refresh',

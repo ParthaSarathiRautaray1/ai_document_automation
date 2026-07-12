@@ -62,6 +62,8 @@ describe('permission policy', () => {
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.VERSION_RESTORE)).toBe(false);
     // Every role can read/manage their own notifications (Module 13).
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.NOTIFICATION_READ)).toBe(true);
+    // Audit logs are an admin-level capability — members cannot read them (Module 14).
+    expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.AUDIT_READ)).toBe(false);
   });
 
   it('grants managers user read + org read + customer/catalog/template create/update', () => {
@@ -107,6 +109,8 @@ describe('permission policy', () => {
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.APPROVAL_CANCEL)).toBe(true);
     // Managers can restore a document to a previous version (Module 12).
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.VERSION_RESTORE)).toBe(true);
+    // Audit logs are admin-level — managers cannot read them (Module 14).
+    expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.AUDIT_READ)).toBe(false);
   });
 
   it('grants admins user + org + customer + catalog + template management, but not user delete', () => {
@@ -126,6 +130,8 @@ describe('permission policy', () => {
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.VERSION_READ)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.VERSION_RESTORE)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.NOTIFICATION_READ)).toBe(true);
+    // Admins can read the organization's audit log (Module 14).
+    expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.AUDIT_READ)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.USER_DELETE)).toBe(false);
   });
 

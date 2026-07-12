@@ -54,6 +54,8 @@ export const PERMISSIONS = Object.freeze({
   VERSION_RESTORE: 'version:restore',
   // Notifications (Module 13)
   NOTIFICATION_READ: 'notification:read',
+  // Audit logs (Module 14)
+  AUDIT_READ: 'audit:read',
 });
 
 /**

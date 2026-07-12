@@ -1,4 +1,4 @@
-import { Bell, Building2, CheckSquare, Contact, FileText, Files, LayoutTemplate, LogOut, Mail, Package, Users } from 'lucide-react';
+import { Bell, Building2, CheckSquare, Contact, FileText, Files, LayoutTemplate, LogOut, Mail, Package, ScrollText, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
@@ -114,6 +114,11 @@ export function AppHeader() {
           {can(PERMISSIONS.ORG_READ) ? (
             <HeaderNavLink to="/organization" icon={Building2}>
               Organization
+            </HeaderNavLink>
+          ) : null}
+          {can(PERMISSIONS.AUDIT_READ) ? (
+            <HeaderNavLink to="/audit-logs" icon={ScrollText}>
+              Audit
             </HeaderNavLink>
           ) : null}
         </nav>

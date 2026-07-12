@@ -72,6 +72,10 @@ export const PERMISSIONS = Object.freeze({
   // Notifications (Module 13) — every operation is on the caller's OWN
   // notifications, so a single self-scoped capability covers read + manage.
   NOTIFICATION_READ: 'notification:read', // view + manage your own notifications
+
+  // Audit logs (Module 14) — a sensitive, org-wide activity trail, so it is an
+  // admin-level read capability (managers/members do NOT get it).
+  AUDIT_READ: 'audit:read', // view the organization's audit log (list + detail)
 });
 
 export const PERMISSION_VALUES = Object.freeze(Object.values(PERMISSIONS));
@@ -111,6 +115,7 @@ const {
   VERSION_READ,
   VERSION_RESTORE,
   NOTIFICATION_READ,
+  AUDIT_READ,
 } = PERMISSIONS;
 
 /**
@@ -195,6 +200,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
     VERSION_READ,
     VERSION_RESTORE,
     NOTIFICATION_READ,
+    AUDIT_READ,
   ]),
   [ROLES.SUPER_ADMIN]: Object.freeze([
     USER_READ,
@@ -231,6 +237,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
     VERSION_READ,
     VERSION_RESTORE,
     NOTIFICATION_READ,
+    AUDIT_READ,
   ]),
 });
 

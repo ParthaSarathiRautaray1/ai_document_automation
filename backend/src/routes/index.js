@@ -13,6 +13,7 @@ import documentRoutes from '../features/documents/document.routes.js';
 import emailRoutes from '../features/emails/email.routes.js';
 import approvalRoutes from '../features/approvals/approval.routes.js';
 import notificationRoutes from '../features/notifications/notification.routes.js';
+import auditRoutes from '../features/audit/audit.routes.js';
 
 const router = Router();
 
@@ -27,5 +28,6 @@ router.use('/documents', documentRoutes);
 router.use('/emails', emailRoutes);
 router.use('/approvals', approvalRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/audit-logs', auditRoutes);
 
 export default router;
