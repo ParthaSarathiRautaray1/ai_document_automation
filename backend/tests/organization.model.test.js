@@ -6,7 +6,12 @@
 import mongoose from 'mongoose';
 import Organization, { slugify } from '../src/features/organizations/organization.model.js';
 import User from '../src/features/users/user.model.js';
-import { ORG_STATUS } from '../src/config/constants.js';
+import {
+  ORG_STATUS,
+  DEFAULT_DATE_FORMAT,
+  DEFAULT_CURRENCY,
+  DOCUMENT_TYPE,
+} from '../src/config/constants.js';
 
 async function makeOwner(email = 'owner@example.com') {
   return User.create({
@@ -53,6 +58,16 @@ describe('Organization model', () => {
     expect(org.status).toBe(ORG_STATUS.ACTIVE);
     expect(org.settings.timezone).toBe('UTC');
     expect(org.owner.toString()).toBe(owner.id);
+  });
+
+  it('applies default settings preferences (Module 17)', async () => {
+    const owner = await makeOwner();
+    const org = await Organization.create({ name: 'Prefs Co', owner: owner._id });
+    expect(org.settings.dateFormat).toBe(DEFAULT_DATE_FORMAT);
+    expect(org.settings.defaultCurrency).toBe(DEFAULT_CURRENCY);
+    expect(org.settings.defaultDocumentType).toBe(DOCUMENT_TYPE.OTHER);
+    expect(org.settings.branding.primaryColor).toMatch(/^#/);
+    expect(org.settings.notifications.approvalEmails).toBe(true);
   });
 
   it('falls back to a generated handle when the name has no alphanumerics', async () => {

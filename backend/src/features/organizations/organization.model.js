@@ -15,7 +15,16 @@
  *    org-scoped roles are handled by the membership flows, not this schema.
  */
 import mongoose from 'mongoose';
-import { ORG_STATUS, ORG_STATUS_VALUES } from '../../config/constants.js';
+import {
+  ORG_STATUS,
+  ORG_STATUS_VALUES,
+  DOCUMENT_TYPE,
+  DOCUMENT_TYPE_VALUES,
+  DATE_FORMAT_VALUES,
+  DEFAULT_DATE_FORMAT,
+  DEFAULT_TIMEZONE,
+  DEFAULT_CURRENCY,
+} from '../../config/constants.js';
 
 const { Schema } = mongoose;
 
@@ -68,8 +77,34 @@ const organizationSchema = new Schema(
       match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid billing email address'],
     },
     settings: {
-      // Free-form org preferences; specific keys are introduced by later modules.
-      timezone: { type: String, trim: true, default: 'UTC' },
+      // Org-wide preferences / defaults (Module 17 — Settings). `timezone` landed
+      // in Module 3; the remaining keys were added here. Additive with defaults,
+      // so organizations created before this module read back sensible values.
+      timezone: { type: String, trim: true, default: DEFAULT_TIMEZONE },
+      dateFormat: { type: String, enum: DATE_FORMAT_VALUES, default: DEFAULT_DATE_FORMAT },
+      // Seeds new catalog items / documents (3-letter ISO 4217 code).
+      defaultCurrency: {
+        type: String,
+        trim: true,
+        uppercase: true,
+        minlength: 3,
+        maxlength: 3,
+        default: DEFAULT_CURRENCY,
+      },
+      // Default type pre-selected when generating a document.
+      defaultDocumentType: {
+        type: String,
+        enum: DOCUMENT_TYPE_VALUES,
+        default: DOCUMENT_TYPE.OTHER,
+      },
+      branding: {
+        primaryColor: { type: String, trim: true, default: '#4F46E5' },
+        accentColor: { type: String, trim: true, default: '#0EA5E9' },
+      },
+      notifications: {
+        // Org default for whether approval events also send email.
+        approvalEmails: { type: Boolean, default: true },
+      },
     },
   },
   {

@@ -15,7 +15,8 @@ import { getDashboardSummary, getRecentDocuments } from '@/features/dashboard/da
 import { DOCUMENT_STATUS_BADGE, timeAgo } from '@/features/dashboard/dashboard.helpers';
 
 /** A single headline metric tile. Optionally links to the underlying list. */
-function StatTile({ icon: Icon, label, value, to }) {
+function StatTile({ icon, label, value, to }) {
+  const Icon = icon;
   const body = (
     <Card
       className={cn(

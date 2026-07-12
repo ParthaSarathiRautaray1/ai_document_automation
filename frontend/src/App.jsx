@@ -27,6 +27,7 @@ import EmailsPage from '@/features/emails/EmailsPage';
 import ApprovalsPage from '@/features/approvals/ApprovalsPage';
 import NotificationsPage from '@/features/notifications/NotificationsPage';
 import AuditLogsPage from '@/features/audit/AuditLogsPage';
+import SettingsPage from '@/features/settings/SettingsPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 
 function FullScreenLoader() {
@@ -64,6 +65,8 @@ export default function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<DashboardPage />} />
+        {/* Account settings are self-scoped — available to every authenticated user. */}
+        <Route path="/settings" element={<SettingsPage />} />
         <Route element={<RequirePermission permission={PERMISSIONS.USER_READ} />}>
           <Route path="/users" element={<UsersPage />} />
         </Route>

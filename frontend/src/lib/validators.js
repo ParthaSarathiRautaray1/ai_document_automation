@@ -238,3 +238,53 @@ export const requestApprovalSchema = z.object({
   policy: z.enum(['all', 'any']).optional(),
   note: z.string().trim().max(2000).optional(),
 });
+
+// --- Settings (Module 17) ---------------------------------------------------
+// Own account: profile name + presentation/notification preferences.
+export const accountSettingsSchema = z.object({
+  firstName: name('First name'),
+  lastName: name('Last name'),
+  theme: z.enum(['light', 'dark', 'system']),
+  dateFormat: z.enum(['YYYY-MM-DD', 'MM/DD/YYYY', 'DD/MM/YYYY', 'MMM D, YYYY']),
+  timezone: z.string().trim().min(1, 'Timezone is required').max(64),
+  notifyEmail: z.boolean(),
+  notifyApprovals: z.boolean(),
+});
+
+// Change own password. `newPassword` follows the same policy as registration;
+// `confirmPassword` must match.
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'Current password is required'),
+    newPassword: password,
+    confirmPassword: z.string().min(1, 'Confirm your new password'),
+  })
+  .refine((v) => v.newPassword === v.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Passwords do not match',
+  })
+  .refine((v) => v.newPassword !== v.currentPassword, {
+    path: ['newPassword'],
+    message: 'New password must differ from the current one',
+  });
+
+const hexColor = z
+  .string()
+  .trim()
+  .regex(/^#[0-9a-fA-F]{6}$/, 'Use a hex colour like #4F46E5');
+
+// Org-wide preferences (admin+). Org identity (name/billing) lives on the
+// Organization settings page, not here.
+export const orgSettingsSchema = z.object({
+  timezone: z.string().trim().min(1, 'Timezone is required').max(64),
+  dateFormat: z.enum(['YYYY-MM-DD', 'MM/DD/YYYY', 'DD/MM/YYYY', 'MMM D, YYYY']),
+  defaultCurrency: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .length(3, 'Use a 3-letter ISO code'),
+  defaultDocumentType: z.enum(['invoice', 'quote', 'contract', 'proposal', 'letter', 'other']),
+  primaryColor: hexColor,
+  accentColor: hexColor,
+  approvalEmails: z.boolean(),
+});

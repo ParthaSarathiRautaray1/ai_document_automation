@@ -376,6 +376,40 @@ export const AI_MAX_OUTPUT_TOKENS = 1024;
 export const AI_HISTORY_DEFAULT_LIMIT = 10;
 export const AI_HISTORY_MAX_LIMIT = 50;
 
+/**
+ * User & organization preferences (Module 17 — Settings). These enumerate the
+ * presentation/localization choices a user picks for themselves (`preferences`
+ * subdoc on User) or an admin sets as org-wide defaults (`settings` bag on
+ * Organization). They are display hints — the API stores the chosen value and the
+ * client uses it to format dates, pick a theme, seed generation defaults, etc.
+ */
+export const THEME = Object.freeze({
+  LIGHT: 'light',
+  DARK: 'dark',
+  SYSTEM: 'system', // follow the OS/browser preference
+});
+
+export const THEME_VALUES = Object.freeze(Object.values(THEME));
+
+/**
+ * Date display formats offered in Settings (Module 17). The stored value is just
+ * the chosen pattern string; the tokens are interpreted client-side.
+ */
+export const DATE_FORMAT = Object.freeze({
+  ISO: 'YYYY-MM-DD',
+  US: 'MM/DD/YYYY',
+  EU: 'DD/MM/YYYY',
+  LONG: 'MMM D, YYYY',
+});
+
+export const DATE_FORMAT_VALUES = Object.freeze(Object.values(DATE_FORMAT));
+
+/** Default preference values (Module 17), applied as schema defaults. */
+export const DEFAULT_THEME = THEME.SYSTEM;
+export const DEFAULT_DATE_FORMAT = DATE_FORMAT.LONG;
+export const DEFAULT_LOCALE = 'en';
+export const DEFAULT_TIMEZONE = 'UTC';
+
 export const TOKEN_TYPES = Object.freeze({
   ACCESS: 'access',
   REFRESH: 'refresh',

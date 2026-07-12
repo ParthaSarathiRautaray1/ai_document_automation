@@ -1,4 +1,4 @@
-import { Bell, Building2, CheckSquare, Contact, FileText, Files, LayoutTemplate, LogOut, Mail, Package, ScrollText, Users } from 'lucide-react';
+import { Bell, Building2, CheckSquare, Contact, FileText, Files, LayoutTemplate, LogOut, Mail, Package, ScrollText, Settings, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
@@ -125,6 +125,20 @@ export function AppHeader() {
       </div>
       <div className="flex items-center gap-1">
         {can(PERMISSIONS.NOTIFICATION_READ) ? <NotificationsBell /> : null}
+        <NavLink
+          to="/settings"
+          aria-label="Settings"
+          className={({ isActive }) =>
+            cn(
+              'inline-flex items-center rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors',
+              isActive
+                ? 'bg-secondary text-secondary-foreground'
+                : 'text-muted-foreground hover:text-foreground'
+            )
+          }
+        >
+          <Settings className="h-4 w-4" aria-hidden="true" />
+        </NavLink>
         <ThemeToggle />
         <Button variant="ghost" size="sm" onClick={logout}>
           <LogOut className="h-4 w-4" />

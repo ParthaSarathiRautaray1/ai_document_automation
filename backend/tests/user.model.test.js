@@ -1,6 +1,13 @@
 import crypto from 'node:crypto';
 import User from '../src/features/users/user.model.js';
-import { ROLES, USER_STATUS } from '../src/config/constants.js';
+import {
+  ROLES,
+  USER_STATUS,
+  DEFAULT_THEME,
+  DEFAULT_DATE_FORMAT,
+  DEFAULT_LOCALE,
+  DEFAULT_TIMEZONE,
+} from '../src/config/constants.js';
 
 const baseUser = () => ({
   firstName: 'Ada',
@@ -22,6 +29,22 @@ describe('User model', () => {
     const user = await User.create(baseUser());
     expect(user.role).toBe(ROLES.MEMBER);
     expect(user.status).toBe(USER_STATUS.ACTIVE);
+  });
+
+  it('applies default preferences (Module 17)', async () => {
+    const user = await User.create(baseUser());
+    expect(user.preferences.theme).toBe(DEFAULT_THEME);
+    expect(user.preferences.dateFormat).toBe(DEFAULT_DATE_FORMAT);
+    expect(user.preferences.locale).toBe(DEFAULT_LOCALE);
+    expect(user.preferences.timezone).toBe(DEFAULT_TIMEZONE);
+    expect(user.preferences.notifications.email).toBe(true);
+    expect(user.preferences.notifications.approvals).toBe(true);
+  });
+
+  it('rejects an unknown theme preference', async () => {
+    await expect(
+      User.create({ ...baseUser(), preferences: { theme: 'neon' } })
+    ).rejects.toThrow();
   });
 
   it('comparePassword returns true for the correct password only', async () => {

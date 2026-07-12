@@ -21,6 +21,12 @@ import {
   USER_STATUS_VALUES,
   BCRYPT_SALT_ROUNDS,
   INVITE_TOKEN_EXPIRES_MIN,
+  THEME_VALUES,
+  DATE_FORMAT_VALUES,
+  DEFAULT_THEME,
+  DEFAULT_DATE_FORMAT,
+  DEFAULT_LOCALE,
+  DEFAULT_TIMEZONE,
 } from '../../config/constants.js';
 import env from '../../config/env.js';
 
@@ -74,6 +80,21 @@ const userSchema = new Schema(
       default: null,
     },
     lastLoginAt: { type: Date, default: null },
+
+    // Per-user presentation & notification preferences (Module 17 — Settings).
+    // Non-sensitive display hints; managed by the user via /settings/me. Nested
+    // defaults are applied on hydration, so accounts created before this module
+    // still read back sensible values.
+    preferences: {
+      theme: { type: String, enum: THEME_VALUES, default: DEFAULT_THEME },
+      locale: { type: String, trim: true, default: DEFAULT_LOCALE, maxlength: 35 },
+      dateFormat: { type: String, enum: DATE_FORMAT_VALUES, default: DEFAULT_DATE_FORMAT },
+      timezone: { type: String, trim: true, default: DEFAULT_TIMEZONE, maxlength: 64 },
+      notifications: {
+        email: { type: Boolean, default: true }, // receive email copies of in-app notifications
+        approvals: { type: Boolean, default: true }, // notify me about approval activity
+      },
+    },
 
     // Password reset (Task 4)
     passwordResetToken: { type: String, select: false, default: null },
