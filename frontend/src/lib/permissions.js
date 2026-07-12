@@ -52,6 +52,8 @@ export const PERMISSIONS = Object.freeze({
   // Version history (Module 12)
   VERSION_READ: 'version:read',
   VERSION_RESTORE: 'version:restore',
+  // Notifications (Module 13)
+  NOTIFICATION_READ: 'notification:read',
 });
 
 /**

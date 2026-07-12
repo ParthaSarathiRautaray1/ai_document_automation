@@ -192,6 +192,7 @@ export const EMAIL_TYPE = Object.freeze({
   PASSWORD_RESET: 'password_reset',
   INVITATION: 'invitation',
   DOCUMENT_DELIVERY: 'document_delivery',
+  NOTIFICATION: 'notification',
   OTHER: 'other',
 });
 
@@ -274,6 +275,21 @@ export const VERSION_CHANGE_TYPE = Object.freeze({
 });
 
 export const VERSION_CHANGE_TYPE_VALUES = Object.freeze(Object.values(VERSION_CHANGE_TYPE));
+
+/**
+ * In-app notification classification (Module 13 — Notifications). Records what
+ * event a notification represents. Notifications are per-user and org-scoped;
+ * some events also trigger a transactional email (see notification.service.js).
+ * `system` is a generic catch-all for messages that don't fit a specific event.
+ */
+export const NOTIFICATION_TYPE = Object.freeze({
+  APPROVAL_REQUESTED: 'approval_requested', // you were asked to approve a document
+  APPROVAL_APPROVED: 'approval_approved', // a request you raised was approved
+  APPROVAL_REJECTED: 'approval_rejected', // a request you raised was rejected
+  SYSTEM: 'system', // generic/system message
+});
+
+export const NOTIFICATION_TYPE_VALUES = Object.freeze(Object.values(NOTIFICATION_TYPE));
 
 export const TOKEN_TYPES = Object.freeze({
   ACCESS: 'access',

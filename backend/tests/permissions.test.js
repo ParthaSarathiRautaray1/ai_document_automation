@@ -41,6 +41,7 @@ describe('permission policy', () => {
       PERMISSIONS.DOCUMENT_EXPORT,
       PERMISSIONS.APPROVAL_READ,
       PERMISSIONS.VERSION_READ,
+      PERMISSIONS.NOTIFICATION_READ,
     ]);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.USER_READ)).toBe(false);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.CUSTOMER_CREATE)).toBe(false);
@@ -59,6 +60,8 @@ describe('permission policy', () => {
     // Members can view version history but not restore a version (Module 12).
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.VERSION_READ)).toBe(true);
     expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.VERSION_RESTORE)).toBe(false);
+    // Every role can read/manage their own notifications (Module 13).
+    expect(roleHasPermission(ROLES.MEMBER, PERMISSIONS.NOTIFICATION_READ)).toBe(true);
   });
 
   it('grants managers user read + org read + customer/catalog/template create/update', () => {
@@ -87,6 +90,7 @@ describe('permission policy', () => {
       PERMISSIONS.APPROVAL_CANCEL,
       PERMISSIONS.VERSION_READ,
       PERMISSIONS.VERSION_RESTORE,
+      PERMISSIONS.NOTIFICATION_READ,
     ]);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.USER_UPDATE_ROLE)).toBe(false);
     expect(roleHasPermission(ROLES.MANAGER, PERMISSIONS.ORG_UPDATE)).toBe(false);
@@ -121,6 +125,7 @@ describe('permission policy', () => {
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.APPROVAL_CANCEL)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.VERSION_READ)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.VERSION_RESTORE)).toBe(true);
+    expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.NOTIFICATION_READ)).toBe(true);
     expect(roleHasPermission(ROLES.ADMIN, PERMISSIONS.USER_DELETE)).toBe(false);
   });
 

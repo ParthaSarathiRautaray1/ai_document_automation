@@ -1,11 +1,13 @@
-import { Building2, CheckSquare, Contact, FileText, Files, LayoutTemplate, LogOut, Mail, Package, Users } from 'lucide-react';
+import { Bell, Building2, CheckSquare, Contact, FileText, Files, LayoutTemplate, LogOut, Mail, Package, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { cn } from '@/lib/utils';
 import { PERMISSIONS } from '@/lib/permissions';
 import { useAuthStore } from '@/store/authStore';
+import { getUnreadCount } from '@/features/notifications/notifications.api';
 
 function HeaderNavLink({ to, icon, children }) {
   const Icon = icon;
@@ -23,6 +25,38 @@ function HeaderNavLink({ to, icon, children }) {
     >
       <Icon className="h-4 w-4" aria-hidden="true" />
       {children}
+    </NavLink>
+  );
+}
+
+/** Bell nav link with an unread-count badge. Polls the count periodically. */
+function NotificationsBell() {
+  const { data: unread = 0 } = useQuery({
+    queryKey: ['notifications-unread'],
+    queryFn: getUnreadCount,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
+  });
+
+  return (
+    <NavLink
+      to="/notifications"
+      aria-label={`Notifications${unread ? ` (${unread} unread)` : ''}`}
+      className={({ isActive }) =>
+        cn(
+          'relative inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors',
+          isActive
+            ? 'bg-secondary text-secondary-foreground'
+            : 'text-muted-foreground hover:text-foreground'
+        )
+      }
+    >
+      <Bell className="h-4 w-4" aria-hidden="true" />
+      {unread > 0 ? (
+        <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none text-primary-foreground">
+          {unread > 99 ? '99+' : unread}
+        </span>
+      ) : null}
     </NavLink>
   );
 }
@@ -85,6 +119,7 @@ export function AppHeader() {
         </nav>
       </div>
       <div className="flex items-center gap-1">
+        {can(PERMISSIONS.NOTIFICATION_READ) ? <NotificationsBell /> : null}
         <ThemeToggle />
         <Button variant="ghost" size="sm" onClick={logout}>
           <LogOut className="h-4 w-4" />

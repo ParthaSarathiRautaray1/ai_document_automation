@@ -68,6 +68,10 @@ export const PERMISSIONS = Object.freeze({
   // Version history (Module 12)
   VERSION_READ: 'version:read', // view a document's version history + diffs
   VERSION_RESTORE: 'version:restore', // roll a document back to a previous version
+
+  // Notifications (Module 13) — every operation is on the caller's OWN
+  // notifications, so a single self-scoped capability covers read + manage.
+  NOTIFICATION_READ: 'notification:read', // view + manage your own notifications
 });
 
 export const PERMISSION_VALUES = Object.freeze(Object.values(PERMISSIONS));
@@ -106,6 +110,7 @@ const {
   APPROVAL_CANCEL,
   VERSION_READ,
   VERSION_RESTORE,
+  NOTIFICATION_READ,
 } = PERMISSIONS;
 
 /**
@@ -125,6 +130,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
     DOCUMENT_EXPORT,
     APPROVAL_READ,
     VERSION_READ,
+    NOTIFICATION_READ,
   ]),
   // Managers additionally read users and create/update customers, catalog,
   // templates, and documents (no delete).
@@ -153,6 +159,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
     APPROVAL_CANCEL,
     VERSION_READ,
     VERSION_RESTORE,
+    NOTIFICATION_READ,
   ]),
   [ROLES.ADMIN]: Object.freeze([
     USER_READ,
@@ -187,6 +194,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
     APPROVAL_CANCEL,
     VERSION_READ,
     VERSION_RESTORE,
+    NOTIFICATION_READ,
   ]),
   [ROLES.SUPER_ADMIN]: Object.freeze([
     USER_READ,
@@ -222,6 +230,7 @@ export const ROLE_PERMISSIONS = Object.freeze({
     APPROVAL_CANCEL,
     VERSION_READ,
     VERSION_RESTORE,
+    NOTIFICATION_READ,
   ]),
 });
 

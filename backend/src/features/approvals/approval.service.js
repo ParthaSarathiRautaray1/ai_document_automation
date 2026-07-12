@@ -11,6 +11,7 @@
 import ApprovalRequest from './approval.model.js';
 import User from '../users/user.model.js';
 import { getDocumentById } from '../documents/document.service.js';
+import { notifyUsers, createNotification } from '../notifications/notification.service.js';
 import ApiError from '../../utils/ApiError.js';
 import { orgScope, requireOrganization, listResources } from '../../utils/query.js';
 import {
@@ -18,6 +19,7 @@ import {
   APPROVAL_POLICY,
   APPROVER_STATUS,
   APPROVAL_DECISION,
+  NOTIFICATION_TYPE,
 } from '../../config/constants.js';
 
 /** Load an approval request scoped to the actor's org, or throw 404. */
@@ -101,6 +103,20 @@ export async function requestApproval(actor, data) {
   });
 
   await approval.save();
+
+  // Notify each approver (best-effort; also mirrored to email). A `document`
+  // referenced here is already tenant-scoped by getDocumentById above.
+  await notifyUsers(approverIds, {
+    organization: actor.organization,
+    type: NOTIFICATION_TYPE.APPROVAL_REQUESTED,
+    title: 'A document needs your approval',
+    body: data.note ?? null,
+    link: `/documents/${document.id}`,
+    data: { documentId: String(document.id), approvalId: String(approval.id) },
+    actor: actor.id,
+    email: true,
+  });
+
   return approval.toJSON();
 }
 
@@ -160,6 +176,28 @@ export async function submitDecision(actor, id, { decision, comment }) {
 
   applyDecisionOutcome(approval);
   await approval.save();
+
+  // When the request reaches a terminal decision, notify the requester (unless
+  // they decided it themselves). Best-effort; also mirrored to email.
+  const isTerminal =
+    approval.status === APPROVAL_STATUS.APPROVED || approval.status === APPROVAL_STATUS.REJECTED;
+  if (isTerminal && approval.requestedBy && String(approval.requestedBy) !== String(actor.id)) {
+    const approved = approval.status === APPROVAL_STATUS.APPROVED;
+    await createNotification({
+      organization: approval.organization,
+      recipient: approval.requestedBy,
+      type: approved ? NOTIFICATION_TYPE.APPROVAL_APPROVED : NOTIFICATION_TYPE.APPROVAL_REJECTED,
+      title: approved
+        ? 'Your approval request was approved'
+        : 'Your approval request was rejected',
+      body: comment ?? null,
+      link: `/documents/${approval.document}`,
+      data: { documentId: String(approval.document), approvalId: String(approval.id) },
+      actor: actor.id,
+      email: true,
+    });
+  }
+
   return approval.toJSON();
 }
 
