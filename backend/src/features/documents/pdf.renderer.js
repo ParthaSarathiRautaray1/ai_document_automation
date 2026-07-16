@@ -8,6 +8,7 @@
  * a real Chromium install.
  */
 import { PDF_PAGE_FORMAT, PDF_MARGINS } from '../../config/constants.js';
+import env from '../../config/env.js';
 import logger from '../../config/logger.js';
 
 let browserPromise = null;
@@ -17,7 +18,22 @@ async function getBrowser() {
   if (!browserPromise) {
     browserPromise = import('puppeteer')
       .then(({ default: puppeteer }) =>
-        puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] })
+        puppeteer.launch({
+          headless: true,
+          // Containers install Chromium via the OS package manager rather than
+          // Puppeteer's bundled download (smaller image, patched by the distro),
+          // so honour an explicit binary path when one is configured.
+          ...(env.PUPPETEER_EXECUTABLE_PATH
+            ? { executablePath: env.PUPPETEER_EXECUTABLE_PATH }
+            : {}),
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            // /dev/shm is only 64MB in a default container; Chromium crashes on
+            // larger pages without this.
+            '--disable-dev-shm-usage',
+          ],
+        })
       )
       .catch((err) => {
         // Reset so a later request can retry a failed launch.

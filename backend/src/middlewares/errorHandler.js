@@ -78,6 +78,14 @@ function normalize(err) {
     return ApiError.unauthorized('Invalid token', { code: 'TOKEN_INVALID' });
   }
 
+  // CORS allowlist rejection (thrown by the cors origin callback). This is a
+  // client/config problem, not a server fault — without this it would normalize
+  // to a misleading 500 and get logged as a programmer error on every stray
+  // cross-origin probe.
+  if (err && /not allowed by CORS/i.test(err.message || '')) {
+    return ApiError.forbidden('Origin is not allowed', { code: 'CORS_ORIGIN_FORBIDDEN' });
+  }
+
   // Unknown / programmer error -> generic 500 (details hidden below)
   const wrapped = ApiError.internal(err.message || 'Internal server error');
   wrapped.isOperational = false;
@@ -89,7 +97,9 @@ export default function errorHandler(err, req, res, _next) {
   const error = normalize(err);
 
   if (!error.isOperational || error.statusCode >= 500) {
-    logger.error(`${req.method} ${req.originalUrl} -> ${error.statusCode}: ${error.message}`);
+    logger.error(
+      `[${req.id ?? '-'}] ${req.method} ${req.originalUrl} -> ${error.statusCode}: ${error.message}`
+    );
     if (error.stack) logger.error(error.stack);
   }
 
@@ -102,6 +112,8 @@ export default function errorHandler(err, req, res, _next) {
   };
   if (error.code) body.code = error.code;
   if (error.details) body.details = error.details;
+  // Echo the correlation id so a user-reported failure can be found in the logs.
+  if (req.id) body.requestId = req.id;
   if (!env.isProduction && error.stack) body.stack = error.stack;
 
   res.status(error.statusCode).json(body);

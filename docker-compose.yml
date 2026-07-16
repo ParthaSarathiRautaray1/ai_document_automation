@@ -1,0 +1,65 @@
+# ============================================================
+# DocFlow AI — full stack (MongoDB + API + SPA)
+#
+#   cp backend/.env.example backend/.env   # then fill in real secrets
+#   docker compose up --build
+#
+#   SPA  → http://localhost:8080
+#   API  → http://localhost:5000/api/v1
+#
+# This runs the API with NODE_ENV=production, so the production config guard
+# applies: placeholder JWT secrets or a localhost CLIENT_URL will refuse to boot.
+# For a purely local run, set NODE_ENV=development in backend/.env.
+# ============================================================
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    # Not published to the host by default — only the API needs to reach it.
+    expose:
+      - '27017'
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  api:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      # Override the .env host-facing values for the compose network.
+      MONGODB_URI: mongodb://mongo:27017/docflow_ai
+      PORT: '5000'
+      # Chromium comes from the image, not Puppeteer's download.
+      PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium
+    ports:
+      - '5000:5000'
+    depends_on:
+      mongo:
+        # Don't start the API until Mongo answers — otherwise the bootstrap's
+        # index sync fails and the container restart-loops.
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        # Baked in at build time (Vite inlines it) — must be the URL the BROWSER
+        # uses, not the compose-internal hostname.
+        VITE_API_URL: http://localhost:5000/api/v1
+    restart: unless-stopped
+    ports:
+      - '8080:80'
+    depends_on:
+      - api
+
+volumes:
+  mongo-data:

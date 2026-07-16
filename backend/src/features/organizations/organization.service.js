@@ -20,7 +20,6 @@ export async function generateUniqueSlug(name) {
   let candidate = base;
   let n = 1;
   // Bounded loop: extremely unlikely to iterate more than a handful of times.
-  // eslint-disable-next-line no-await-in-loop
   while (await Organization.exists({ slug: candidate })) {
     n += 1;
     candidate = `${base}-${n}`;

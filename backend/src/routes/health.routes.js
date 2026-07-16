@@ -16,9 +16,12 @@ router.get('/health', (_req, res) => {
 router.get('/ready', (_req, res) => {
   const dbState = mongoose.connection.readyState; // 1 = connected
   const ready = dbState === 1;
+  // 503, not 500: "the dependency is down, retry / don't route traffic here" —
+  // which is what a load balancer or orchestrator probe acts on. A 500 reads as
+  // an application bug and is treated differently by most platforms.
   ApiResponse.send(
     res,
-    ready ? HTTP_STATUS.OK : HTTP_STATUS.INTERNAL_SERVER_ERROR,
+    ready ? HTTP_STATUS.OK : HTTP_STATUS.SERVICE_UNAVAILABLE,
     { database: ready ? 'connected' : 'unavailable' },
     ready ? 'Service is ready' : 'Service is not ready'
   );
