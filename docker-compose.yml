@@ -7,9 +7,12 @@
 #   SPA  → http://localhost:8080
 #   API  → http://localhost:5000/api/v1
 #
-# This runs the API with NODE_ENV=production, so the production config guard
-# applies: placeholder JWT secrets or a localhost CLIENT_URL will refuse to boot.
-# For a purely local run, set NODE_ENV=development in backend/.env.
+# Ports are overridable when something already owns them:
+#   API_PORT=5001 WEB_PORT=8081 docker compose up
+#
+# NODE_ENV is inherited from backend/.env. Keep it `development` for a local
+# stack: with `production`, the startup guard (correctly) refuses to boot on a
+# localhost CLIENT_URL, which is all a local compose run can have.
 # ============================================================
 
 services:
@@ -38,10 +41,18 @@ services:
       # Override the .env host-facing values for the compose network.
       MONGODB_URI: mongodb://mongo:27017/docflow_ai
       PORT: '5000'
+      # The SPA is served from WEB_PORT here, not Vite's 5173 — CORS must allow
+      # that origin or every browser call from the compose SPA is blocked.
+      CLIENT_URL: http://localhost:${WEB_PORT:-8080}
+      # Nothing resolves SRV inside this network (Mongo is a plain host), and a
+      # forced public resolver would only get in the way.
+      DB_SRV_DNS_SERVERS: ''
       # Chromium comes from the image, not Puppeteer's download.
       PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium
     ports:
-      - '5000:5000'
+      # Host port is overridable — 5000 is often already taken (a local `npm run
+      # dev`, or AirPlay on macOS). e.g. API_PORT=5001 docker compose up
+      - '${API_PORT:-5000}:5000'
     depends_on:
       mongo:
         # Don't start the API until Mongo answers — otherwise the bootstrap's
@@ -53,11 +64,12 @@ services:
       context: ./frontend
       args:
         # Baked in at build time (Vite inlines it) — must be the URL the BROWSER
-        # uses, not the compose-internal hostname.
-        VITE_API_URL: http://localhost:5000/api/v1
+        # uses, not the compose-internal hostname. Must track API_PORT, or the
+        # SPA calls a port nothing is published on.
+        VITE_API_URL: http://localhost:${API_PORT:-5000}/api/v1
     restart: unless-stopped
     ports:
-      - '8080:80'
+      - '${WEB_PORT:-8080}:80'
     depends_on:
       - api
 
